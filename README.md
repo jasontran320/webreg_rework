@@ -1,4 +1,5 @@
 # Webreg Rework
+`cd frontend` to go into frontend directory
 
 `npm install` to install packages
  
