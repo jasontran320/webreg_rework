@@ -42,17 +42,87 @@ export default function Register() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [expandedCourseId, setExpandedCourseId] = useState(null);
+  const [selectedDept, setSelectedDept] = useState(null);
+  const [selectedReq, setSelectedReq] = useState(null);
 
   // Available departments derived from courses
   const departments = ['all', ...new Set(courses.map(course => course.department))];
 
   // Progress towards degree with more details
   const degreeRequirements = {
-    CS: { required: 40, completed: 12 },
-    MATH: { required: 15, completed: 8 },
-    ENG: { required: 6, completed: 3 },
-    Electives: { required: 30, completed: 12 }
+    CS: {
+      required: 40,
+      completed: 12,
+      description: "Lower-division computer science courses including introductory programming (ICS 31–33 or H32–33), C/C++ (ICS 45C), data structures (ICS 46), computer organization (ICS 51), systems design (ICS 53), and software engineering (IN4MATX 43)."
+    },
+    MATH: {
+      required: 15,
+      completed: 8,
+      description: "Mathematics for CS majors including single-variable calculus (MATH 2A–2B), discrete math (ICS 6B & 6D), linear algebra (ICS 6N or MATH 3A), and statistics (STATS 67)."
+    },
+    ENG: {
+      required: 6,
+      completed: 3,
+      description: "Two approved General Education Category II writing courses not offered by ICS, Engineering, Math, or Economics. University Studies courses allowed with approval."
+    },
+    Electives: {
+      required: 30,
+      completed: 12,
+      description: "Upper-division CS electives and other approved courses beyond the core, supporting breadth and specialization in areas like AI, systems, or theory. Also supports out of major scope classes."
+    }
   };
+
+      const handleItemClick = (itemType) => {
+      // Toggle active state for the clicked item
+      // Example actions based on which item was clicked
+      switch(itemType) {
+        case 'completed':
+          setSelectedDept('');
+          setActiveTab('search');
+          setSelectedFilter('completed')
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+          });
+          // Add your functionality here - e.g., open a modal, navigate to details page
+          break;
+        case 'registered':
+          setSelectedDept('');
+          setActiveTab('registered');
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+          });
+
+          break;
+        case 'total':
+          setSelectedDept('');
+          setActiveTab('search');
+          setSelectedFilter('required');
+
+          setTimeout(() => {
+            window.scrollTo({
+              top: 700,
+              behavior: 'smooth',
+            });
+          }, 50); // Adjust delay if needed
+
+          break;
+        case 'remaining':
+          setSelectedDept('');
+          setActiveTab('search');
+          setSelectedFilter('required');
+
+          setTimeout(() => {
+            window.scrollTo({
+              top: 700,
+              behavior: 'smooth',
+            });
+          }, 50); // Adjust delay if needed
+
+          break;
+      }
+    }
   
   const degreeProgress = {
     totalCredits: 120,
@@ -67,12 +137,44 @@ export default function Register() {
     const matchesDepartment = selectedDepartment === 'all' || course.department === selectedDepartment;
     
     if (selectedFilter === 'all') return matchesSearch && matchesDepartment;
-    if (selectedFilter === 'available') return matchesSearch && course.status === 'Available' && matchesDepartment;
+    if (selectedFilter === 'available') return matchesSearch && course.status === 'Available' && matchesDepartment && !course.completed;
     if (selectedFilter === 'required') return matchesSearch && course.required && matchesDepartment;
     if (selectedFilter === 'completed') return matchesSearch && course.completed && matchesDepartment;
     
     return matchesSearch && matchesDepartment;
   });
+
+const requiredDepartments = ['CS', 'MATH', 'ENG'];
+
+const groupedDegreeCourses = {
+  CS: courses.filter(course => course.required && course.department === 'CS'),
+  MATH: courses.filter(course => course.required && course.department === 'MATH'),
+  ENG: courses.filter(course => course.required && course.department === 'ENG'),
+  Electives: courses.filter(course => 
+    !requiredDepartments.includes(course.department)
+  )
+};
+
+
+
+
+
+  const handleDeptClick = (event, dept, reqData) => {
+      // Toggle selection state
+      console.log(groupedDegreeCourses)
+      setSelectedDept(selectedDept === dept ? null : dept);
+      setSelectedReq(selectedDept === dept ? null : reqData);
+      
+      // Example actions when a department is clicked
+      console.log(`Department ${dept} clicked`);
+      console.log(`Completion: ${reqData.completed}/${reqData.required}`);
+      
+      // Additional actions you might want to take:
+      // - Navigate to department details page
+      // - Open a modal with course listings
+      // - Fetch additional data about this department
+      // - Show a tooltip with more information
+    }
 
   const handleRegister = (course) => {
     // Check if prerequisites are met
@@ -263,44 +365,180 @@ export default function Register() {
             {Math.round((degreeProgress.completedCredits / degreeProgress.totalCredits) * 100)}%
           </div>
         </div>
+
+
+
+                
         <div className="progress-details">
-          <div className="progress-item">
+          <div 
+            className={`progress-item`}
+            onClick={() => handleItemClick('completed')}
+          >
             <span>Completed Credits:</span>
             <span>{degreeProgress.completedCredits}</span>
           </div>
-          <div className="progress-item">
-            <span>Currently Registered:</span>
+          <div 
+            className={`progress-item`}
+            onClick={() => handleItemClick('registered')}
+          >
+            <span>Credits Currently Registered:</span>
             <span>{degreeProgress.currentlyRegistered}</span>
           </div>
-          <div className="progress-item">
+          <div 
+            className={`progress-item`}
+            onClick={() => handleItemClick('total')}
+          >
             <span>Total Credits Required:</span>
             <span>{degreeProgress.totalCredits}</span>
           </div>
-          <div className="progress-item">
-            <span>Remaining Required:</span>
+          <div 
+            className={`progress-item`}
+            onClick={() => handleItemClick('remaining')}
+          >
+            <span>Remaining Credits Required:</span>
             <span>{degreeProgress.remainingRequired}</span>
           </div>
         </div>
         
+
+
+
         {/* Detailed degree requirements by department */}
         <div className="degree-requirements">
-          <h3>Department Requirements</h3>
-          <div className="requirements-list">
-            {Object.entries(degreeRequirements).map(([dept, req]) => (
-              <div key={dept} className="requirement-item">
-                <span>{dept}:</span>
-                <div className="req-progress">
-                  <div 
-                    className="req-progress-bar" 
-                    style={{ width: `${(req.completed / req.required) * 100}%` }}
-                  ></div>
-                </div>
-                <span>{req.completed}/{req.required} credits</span>
-              </div>
-            ))}
-          </div>
+  <h3>Department Requirements</h3>
+  <div className="requirements-list">
+    {Object.entries(degreeRequirements).map(([dept, req]) => (
+      <div 
+        key={dept} 
+        className={`requirement-item ${selectedDept === dept ? 'active' : ''}`}
+        onClick={(e) => handleDeptClick(e, dept, req)}
+      >
+        <span>{dept}:</span>
+        <div className="req-progress">
+          <div
+            className="req-progress-bar"
+            style={{ width: `${(req.completed / req.required) * 100}%` }}
+          ></div>
         </div>
+        <span>{req.completed}/{req.required} credits</span>
       </div>
+    ))}
+  </div>
+  
+  {/* Optional: Detail panel that appears when a department is clicked */}
+      {selectedDept && selectedReq &&(
+        <div className="requirement-details">
+          {/* Simple styled department details */}
+          <h4 className="dept-detail-heading">{selectedDept} Details</h4>
+          <p className="dept-desc">{selectedReq.description}</p>
+          {groupedDegreeCourses[selectedDept].length > 0 && (<div className="divider"></div>)}
+  
+
+
+
+        {groupedDegreeCourses[selectedDept]?.length > 0 ? (
+      groupedDegreeCourses[selectedDept].map(course => (
+                <React.Fragment key={course.id}>
+
+                  <div className="course-item" onClick={() => toggleCourseDetails(course.id)}>
+                    <span className="course-id">{course.id}</span>
+                    <span className="course-name">
+                      {course.name}
+                      {course.required && <span className="required-badge">Required</span>}
+                      {course.completed && <span className="completed-badge">Completed</span>}
+                    </span>
+                    <span className="course-credits">{course.credits}</span>
+                    <span className={`course-status ${getStatusClass(course.status, course.completed)}`}>
+                      {course.completed ? 'Complete': course.status}
+                    </span>
+                    <span className="course-availability">
+                      {course.seats - course.enrolled} / {course.seats} seats
+                      {course.waitlist > 0 && <span> (Waitlist: {course.waitlist})</span>}
+                    </span>
+                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                      {course.completed ? (
+                        <button disabled className="button-disabled">Completed</button>
+                      ) : registeredCourses.some(c => c.id === course.id) ? (
+                        <button disabled className="button-disabled">Registered</button>
+                      ) : waitlistedCourses.some(c => c.id === course.id) ? (
+                        <button disabled className="button-disabled">On Waitlist</button>
+                      ) : (
+                        <button 
+                          onClick={() => handleRegister(course)}
+                          className={checkPrerequisites(course) ? (course.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                          disabled={!checkPrerequisites(course)}
+                          title={!checkPrerequisites(course) ? "Prerequisites not met" : ""}
+                        >
+                          {checkPrerequisites(course) ? (course.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                  
+                  {expandedCourseId === course.id && (
+                    <div className="course-details">
+                      <div className="details-section">
+                        <h4>Course Details</h4>
+                        <p>{course.description}</p>
+                        <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
+                        <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                        <p><strong>Location:</strong> {course.location}</p>
+                        <p><strong>Department:</strong> {course.department}</p>
+                        <p><strong>Prerequisites:</strong> {course.prerequisites.length > 0 ? 
+                          course.prerequisites.join(', ') : 'None'}
+                        </p>
+                        <div className="prerequisite-status">
+                          {course.prerequisites.map(prereq => {
+                            const prereqCourse = courses.find(c => c.id === prereq);
+                            const isCompleted = prereqCourse && prereqCourse.completed;
+                            const isRegistered = registeredCourses.some(c => c.id === prereq);
+                            return (
+                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))
+            ) : (
+              <div className="no-results">No courses matching your search criteria</div>
+            )}
+
+          
+          {/* You could add a list of courses taken or still needed here */}
+          {selectedReq.courses && (
+            <div>
+              <h5>Courses Taken:</h5>
+              <ul>
+                {selectedReq.courses.map(course => (
+                  <li key={course.id}>{course.code}: {course.name} ({course.credits} cr)</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
 
       <div className="tabs">
         <button 

@@ -10,4 +10,4 @@
 - frontend/src/pages/Register.jsx - This is the registering courses page
 
 # Demo
-https://youtu.be/1Hn1KII11Qk?si=K2hpg4z8Y_2LOcHE 
+https://youtu.be/zBDWch6BPaw
