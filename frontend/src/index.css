@@ -5,7 +5,9 @@
   padding: 1rem 2rem;
   background-color: #1a56db;
   color: white;
+  margin-bottom: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 .logo {
@@ -134,4 +136,720 @@
   .home-title {
     font-size: 2rem;
   }
+}
+
+
+
+/* Register.css */
+
+/* Global styles */
+.registration-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #1a365d;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: #2c5282;
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 1.2rem;
+  color: #2a4365;
+  margin-bottom: 10px;
+}
+
+/* Degree Progress Section */
+.degree-progress {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar-container {
+  height: 24px;
+  background-color: #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4299e1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  transition: width 0.5s ease;
+}
+
+.progress-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.progress-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: #edf2f7;
+  border-radius: 4px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tabs button.active {
+  color: #3182ce;
+  border-bottom: 3px solid #3182ce;
+}
+
+.tabs button:hover {
+  color: #3182ce;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 30px;
+}
+
+.search-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.search-controls input {
+  padding: 12px 16px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-options button {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background-color: white;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-options button.active {
+  background-color: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+.filter-options button:hover:not(.active) {
+  background-color: #edf2f7;
+}
+
+/* Course List */
+.course-list, .registered-courses {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.course-header {
+  background-color: #f7fafc;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.registered-courses .course-header {
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr;
+}
+
+.course-item {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.registered-courses .course-item {
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr;
+}
+
+.course-item:hover {
+  background-color: #f8fafc;
+}
+
+.course-item:last-child {
+  border-bottom: none;
+}
+
+.course-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.required-badge {
+  display: inline-block;
+  background-color: #ed8936;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  width: fit-content;
+}
+
+.completed-badge {
+  display: inline-block;
+  background-color: #48bb78;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  width: fit-content;
+}
+
+/* Status colors */
+.status-available {
+  color: #38a169;
+  font-weight: 600;
+}
+
+.status-waitlisted {
+  color: #dd6b20;
+  font-weight: 600;
+}
+
+.status-completed { 
+  color: #4A5568;
+  font-weight: 600;
+}
+
+.status-complete { 
+  color: #3182ce;
+  font-weight: 600;
+}
+
+
+.status-full {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.status-registered {
+  color: #3182ce;
+  font-weight: 600;
+}
+
+/* Buttons */
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button-register {
+  background-color: #38a169;
+  color: white;
+  border: none;
+}
+
+.button-register:hover {
+  background-color: #2f855a;
+}
+
+.button-waitlist {
+  background-color: #dd6b20;
+  color: white;
+  border: none;
+}
+
+.button-waitlist:hover {
+  background-color: #c05621;
+}
+
+.button-restricted {
+  background-color: #d1b855; 
+  color: #2d2d2d;            
+  border: none;
+  opacity: 0.85;          
+  cursor: not-allowed;       
+}
+
+
+
+
+.button-drop {
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+}
+
+.button-drop:hover {
+  background-color: #c53030;
+}
+
+.button-disabled {
+  background-color: #a0aec0;
+  color: white;
+  border: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* No results message */
+.no-results {
+  padding: 30px;
+  text-align: center;
+  color: #718096;
+  font-style: italic;
+}
+
+/* Course summary */
+.course-summary {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #f7fafc;
+  font-weight: 600;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Registration legend */
+.registration-legend {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-color.status-available {
+  background-color: #38a169;
+}
+
+.legend-color.status-complete {
+  background-color: #4A5568;
+}
+
+.legend-color.status-waitlisted {
+  background-color: #dd6b20;
+}
+
+.legend-color.status-full {
+  background-color: #e53e3e;
+}
+
+.legend-color.status-registered {
+  background-color: #3182ce;
+}
+
+.legend-color.status-restricted {
+  background-color: #d1b855;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .course-header, .course-item {
+    grid-template-columns: 0.7fr 1.5fr 0.5fr 0.8fr 1fr;
+  }
+  
+  .course-availability {
+    display: none;
+  }
+
+  .registered-courses .course-header,
+  .registered-courses .course-item {
+    grid-template-columns: 0.7fr 1.5fr 0.5fr 1fr;
+  }
+  
+  .registered-courses .course-section {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .course-header, .course-item {
+    grid-template-columns: 0.7fr 1.5fr 0.8fr;
+  }
+  
+  .course-credits, .course-status {
+    display: none;
+  }
+
+  .registered-courses .course-header,
+  .registered-courses .course-item {
+    grid-template-columns: 0.7fr 1.5fr 0.8fr;
+  }
+  
+  .registered-courses .course-credits {
+    display: none;
+  }
+  
+  .progress-details {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+
+
+/* Department Requirements Styling */
+.degree-requirements {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.degree-requirements h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: #444;
+}
+
+.requirements-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.requirement-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border-left: 4px solid #3498db;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.requirement-item > span:first-child {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.requirement-item > span:last-child {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 3px;
+}
+
+.req-progress {
+  height: 8px;
+  background-color: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.req-progress-bar {
+  height: 100%;
+  background-color: #2ecc71;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Department Filter Styling */
+.department-filter {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.department-filter label {
+  margin-right: 10px;
+  font-weight: 600;
+  color: #444;
+}
+
+.department-options {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;
+}
+
+.department-options:hover {
+  border-color: #bbb;
+}
+
+.department-options:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Course Details Styling */
+.course-details {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #3498db;
+  margin: 0 10px 10px 10px;
+  border-radius: 0 0 4px 4px;
+}
+
+.details-section h4 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.prerequisite-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.prereq-item {
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.prereq-item.completed {
+  background-color: #e6f7e9;
+  color: #2ecc71;
+  border: 1px solid #c3e6cb;
+}
+
+.prereq-item.registered {
+  background-color: #e7f4fd;
+  color: #3498db;
+  border: 1px solid #b8daff;
+}
+
+.prereq-item.missing {
+  background-color: #fff3cd;
+  color: #e67e22;
+  border: 1px solid #ffeeba;
+}
+
+/* Make course items clickable */
+.course-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.course-item:hover {
+  background-color: #f5f9fc;
+}
+
+/* Expandable Course Items Styling */
+.course-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.course-item:hover {
+  background-color: #f5f9fc;
+}
+
+.course-item:after {
+  content: '\25BE'; /* Down arrow character */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+/* Course Details Styling */
+.course-details {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #3498db;
+  margin: 0 10px 10px 10px;
+  border-radius: 0 0 4px 4px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.details-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1rem;
+}
+
+.details-section p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+}
+
+.prerequisite-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 15px 0;
+}
+
+.prereq-item {
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.prereq-item.completed {
+  background-color: #e6f7e9;
+  color: #2ecc71;
+  border: 1px solid #c3e6cb;
+}
+
+.prereq-item.registered {
+  background-color: #e7f4fd;
+  color: #3498db;
+  border: 1px solid #b8daff;
+}
+
+.prereq-item.missing {
+  background-color: #fff3cd;
+  color: #e67e22;
+  border: 1px solid #ffeeba;
+}
+
+.course-actions {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.additional-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.button-secondary {
+  padding: 0.8rem 1.5rem;
+  font-weight: 200;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #e9ecef;
+}
+
+.button-secondary:hover {
+  background-color: #dee2e6;
+  border-color: #ccc;
+}
+
+/* Waitlist specific styles */
+.waitlist-info {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #fff8e1;
+  border-left: 3px solid #ffc107;
+  border-radius: 3px;
+}
+
+.status-registered2, .status-waitlisted2 {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-registered2 {
+  background-color: #e7f4fd;
+  color: #3498db;
+}
+
+.status-waitlisted2 {
+  background-color: #fff3cd;
+  color: #e67e22;
 }

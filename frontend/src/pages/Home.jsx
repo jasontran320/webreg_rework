@@ -9,16 +9,16 @@ export default function Home() {
       
       <div className="button-container">
         <button 
-          className="home-button plan-button"
-          onClick={() => navigate('/plan')}
-        >
-          Plan Courses
-        </button>
-        <button 
           className="home-button register-button"
           onClick={() => navigate('/register')}
         >
           Register Classes
+        </button>
+        <button 
+          className="home-button plan-button"
+          onClick={() => navigate('/plan')}
+        >
+          Plan Courses
         </button>
       </div>
     </div>
