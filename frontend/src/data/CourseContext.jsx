@@ -82,18 +82,6 @@ const defaultBlocks = [
       endTime: '14:30',
       color: 'green',
     },
-  
-
-  // { id: '1', title: 'CS 101', day: 'monday', startTime: '09:00', endTime: '10:30', color: 'blue' },
-  // { id: '2', title: 'CS 201', day: 'monday', startTime: '13:00', endTime: '14:30', color: 'green' },
-  // { id: '3', title: 'CS 301', day: 'tuesday', startTime: '11:00', endTime: '12:30', color: 'purple' },
-  // { id: '4', title: 'MATH 101', day: 'wednesday', startTime: '09:00', endTime: '10:30', color: 'blue' },
-  // { id: '5', title: 'MATH 201', day: 'thursday', startTime: '15:00', endTime: '16:30', color: 'yellow' },
-  // { id: '6', title: 'PHYS 101', day: 'friday', startTime: '09:00', endTime: '10:30', color: 'red' },
-  // { id: '7', title: 'ENG 101', day: 'friday', startTime: '11:00', endTime: '12:30', color: 'pink' },
-  // { id: '8', title: 'CS 350', day: 'friday', startTime: '13:00', endTime: '14:30', color: 'green' },
-  // { id: '9', title: 'CS 450', day: 'friday', startTime: '15:00', endTime: '16:30', color: 'red' },
-  // { id: '10', title: 'CS 215', day: 'tuesday', startTime: '14:00', endTime: '15:30', color: 'blue' },
 ];
 
 export const CourseContext = createContext();

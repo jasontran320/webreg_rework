@@ -161,19 +161,8 @@ const groupedDegreeCourses = {
 
   const handleDeptClick = (event, dept, reqData) => {
       // Toggle selection state
-      console.log(groupedDegreeCourses)
       setSelectedDept(selectedDept === dept ? null : dept);
       setSelectedReq(selectedDept === dept ? null : reqData);
-      
-      // Example actions when a department is clicked
-      console.log(`Department ${dept} clicked`);
-      console.log(`Completion: ${reqData.completed}/${reqData.required}`);
-      
-      // Additional actions you might want to take:
-      // - Navigate to department details page
-      // - Open a modal with course listings
-      // - Fetch additional data about this department
-      // - Show a tooltip with more information
     }
 
   const handleRegister = (course) => {
@@ -364,11 +353,7 @@ const groupedDegreeCourses = {
           >
             {Math.round((degreeProgress.completedCredits / degreeProgress.totalCredits) * 100)}%
           </div>
-        </div>
-
-
-
-                
+        </div>      
         <div className="progress-details">
           <div 
             className={`progress-item`}
@@ -399,147 +384,125 @@ const groupedDegreeCourses = {
             <span>{degreeProgress.remainingRequired}</span>
           </div>
         </div>
+        {/* Detailed degree requirements by department */}
+        <div className="degree-requirements">
+        <h3>Department Requirements</h3>
+        <div className="requirements-list">
+          {Object.entries(degreeRequirements).map(([dept, req]) => (
+            <div 
+              key={dept} 
+              className={`requirement-item ${selectedDept === dept ? 'active' : ''}`}
+              onClick={(e) => handleDeptClick(e, dept, req)}
+            >
+              <span>{dept}:</span>
+              <div className="req-progress">
+                <div
+                  className="req-progress-bar"
+                  style={{ width: `${(req.completed / req.required) * 100}%` }}
+                ></div>
+              </div>
+              <span>{req.completed}/{req.required} credits</span>
+            </div>
+          ))}
+        </div>
+        
+        {/* Optional: Detail panel that appears when a department is clicked */}
+            {selectedDept && selectedReq &&(
+              <div className="requirement-details">
+                {/* Simple styled department details */}
+                <h4 className="dept-detail-heading">{selectedDept} Details</h4>
+                <p className="dept-desc">{selectedReq.description}</p>
+                {groupedDegreeCourses[selectedDept].length > 0 && (<div className="divider"></div>)}
         
 
 
 
-        {/* Detailed degree requirements by department */}
-        <div className="degree-requirements">
-  <h3>Department Requirements</h3>
-  <div className="requirements-list">
-    {Object.entries(degreeRequirements).map(([dept, req]) => (
-      <div 
-        key={dept} 
-        className={`requirement-item ${selectedDept === dept ? 'active' : ''}`}
-        onClick={(e) => handleDeptClick(e, dept, req)}
-      >
-        <span>{dept}:</span>
-        <div className="req-progress">
-          <div
-            className="req-progress-bar"
-            style={{ width: `${(req.completed / req.required) * 100}%` }}
-          ></div>
-        </div>
-        <span>{req.completed}/{req.required} credits</span>
-      </div>
-    ))}
-  </div>
-  
-  {/* Optional: Detail panel that appears when a department is clicked */}
-      {selectedDept && selectedReq &&(
-        <div className="requirement-details">
-          {/* Simple styled department details */}
-          <h4 className="dept-detail-heading">{selectedDept} Details</h4>
-          <p className="dept-desc">{selectedReq.description}</p>
-          {groupedDegreeCourses[selectedDept].length > 0 && (<div className="divider"></div>)}
-  
+              {groupedDegreeCourses[selectedDept]?.length > 0 ? (
+            groupedDegreeCourses[selectedDept].map(course => (
+                      <React.Fragment key={course.id}>
 
-
-
-        {groupedDegreeCourses[selectedDept]?.length > 0 ? (
-      groupedDegreeCourses[selectedDept].map(course => (
-                <React.Fragment key={course.id}>
-
-                  <div className="course-item" onClick={() => toggleCourseDetails(course.id)}>
-                    <span className="course-id">{course.id}</span>
-                    <span className="course-name">
-                      {course.name}
-                      {course.required && <span className="required-badge">Required</span>}
-                      {course.completed && <span className="completed-badge">Completed</span>}
-                    </span>
-                    <span className="course-credits">{course.credits}</span>
-                    <span className={`course-status ${getStatusClass(course.status, course.completed)}`}>
-                      {course.completed ? 'Complete': course.status}
-                    </span>
-                    <span className="course-availability">
-                      {course.seats - course.enrolled} / {course.seats} seats
-                      {course.waitlist > 0 && <span> (Waitlist: {course.waitlist})</span>}
-                    </span>
-                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
-                      {course.completed ? (
-                        <button disabled className="button-disabled">Completed</button>
-                      ) : registeredCourses.some(c => c.id === course.id) ? (
-                        <button disabled className="button-disabled">Registered</button>
-                      ) : waitlistedCourses.some(c => c.id === course.id) ? (
-                        <button disabled className="button-disabled">On Waitlist</button>
-                      ) : (
-                        <button 
-                          onClick={() => handleRegister(course)}
-                          className={checkPrerequisites(course) ? (course.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
-                          disabled={!checkPrerequisites(course)}
-                          title={!checkPrerequisites(course) ? "Prerequisites not met" : ""}
-                        >
-                          {checkPrerequisites(course) ? (course.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
-                        </button>
-                      )}
-                    </span>
-                  </div>
-                  
-                  {expandedCourseId === course.id && (
-                    <div className="course-details">
-                      <div className="details-section">
-                        <h4>Course Details</h4>
-                        <p>{course.description}</p>
-                        <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                        <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
-                        <p><strong>Location:</strong> {course.location}</p>
-                        <p><strong>Department:</strong> {course.department}</p>
-                        <p><strong>Prerequisites:</strong> {course.prerequisites.length > 0 ? 
-                          course.prerequisites.join(', ') : 'None'}
-                        </p>
-                        <div className="prerequisite-status">
-                          {course.prerequisites.map(prereq => {
-                            const prereqCourse = courses.find(c => c.id === prereq);
-                            const isCompleted = prereqCourse && prereqCourse.completed;
-                            const isRegistered = registeredCourses.some(c => c.id === prereq);
-                            return (
-                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
-                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
-                              </div>
-                            );
-                          })}
+                        <div className="course-item" onClick={() => toggleCourseDetails(course.id)}>
+                          <span className="course-id">{course.id}</span>
+                          <span className="course-name">
+                            {course.name}
+                            {course.required && <span className="required-badge">Required</span>}
+                            {course.completed && <span className="completed-badge">Completed</span>}
+                          </span>
+                          <span className="course-credits">{course.credits}</span>
+                          <span className={`course-status ${getStatusClass(course.status, course.completed)}`}>
+                            {course.completed ? 'Complete': course.status}
+                          </span>
+                          <span className="course-availability">
+                            {course.seats - course.enrolled} / {course.seats} seats
+                            {course.waitlist > 0 && <span> (Waitlist: {course.waitlist})</span>}
+                          </span>
+                          <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                            {course.completed ? (
+                              <button disabled className="button-disabled">Completed</button>
+                            ) : registeredCourses.some(c => c.id === course.id) ? (
+                              <button disabled className="button-disabled">Registered</button>
+                            ) : waitlistedCourses.some(c => c.id === course.id) ? (
+                              <button disabled className="button-disabled">On Waitlist</button>
+                            ) : (
+                              <button 
+                                onClick={() => handleRegister(course)}
+                                className={checkPrerequisites(course) ? (course.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                                disabled={!checkPrerequisites(course)}
+                                title={!checkPrerequisites(course) ? "Prerequisites not met" : ""}
+                              >
+                                {checkPrerequisites(course) ? (course.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                              </button>
+                            )}
+                          </span>
                         </div>
-                      </div>
-                    </div>
+                        
+                        {expandedCourseId === course.id && (
+                          <div className="course-details">
+                            <div className="details-section">
+                              <h4>Course Details</h4>
+                              <p>{course.description}</p>
+                              <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
+                              <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                              <p><strong>Location:</strong> {course.location}</p>
+                              <p><strong>Department:</strong> {course.department}</p>
+                              <p><strong>Prerequisites:</strong> {course.prerequisites.length > 0 ? 
+                                course.prerequisites.join(', ') : 'None'}
+                              </p>
+                              <div className="prerequisite-status">
+                                {course.prerequisites.map(prereq => {
+                                  const prereqCourse = courses.find(c => c.id === prereq);
+                                  const isCompleted = prereqCourse && prereqCourse.completed;
+                                  const isRegistered = registeredCourses.some(c => c.id === prereq);
+                                  return (
+                                    <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                      {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <div className="no-results">No courses matching your search criteria</div>
                   )}
-                </React.Fragment>
-              ))
-            ) : (
-              <div className="no-results">No courses matching your search criteria</div>
+                {/* You could add a list of courses taken or still needed here */}
+                {selectedReq.courses && (
+                  <div>
+                    <h5>Courses Taken:</h5>
+                    <ul>
+                      {selectedReq.courses.map(course => (
+                        <li key={course.id}>{course.code}: {course.name} ({course.credits} cr)</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
-
-          
-          {/* You could add a list of courses taken or still needed here */}
-          {selectedReq.courses && (
-            <div>
-              <h5>Courses Taken:</h5>
-              <ul>
-                {selectedReq.courses.map(course => (
-                  <li key={course.id}>{course.code}: {course.name} ({course.credits} cr)</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-
-
-
-
-
-
-
-
-
-
-
+          </div>
       </div>
-
-
-
-
-
       <div className="tabs">
         <button 
           className={activeTab === 'search' ? 'active' : ''} 
@@ -625,19 +588,6 @@ const groupedDegreeCourses = {
               <span className="course-action">Action</span>
             </div>
 
-
-
-
-
-
-
-
-
-
-
-
-            
-            
             {filteredCourses.length > 0 ? (
               filteredCourses.map(course => (
                 <React.Fragment key={course.id}>
@@ -675,7 +625,7 @@ const groupedDegreeCourses = {
                       )}
                     </span>
                   </div>
-                  
+              
                   {expandedCourseId === course.id && (
                     <div className="course-details">
                       <div className="details-section">
@@ -711,125 +661,97 @@ const groupedDegreeCourses = {
           </div>
         </div>
       )}
-
-
-
-
-
-
-
-
-
-
-
-
-
       {activeTab === 'registered' && (
-  <div className="registered-section">
-    <h2>Your Registered Courses</h2>
-    
-    {registeredCourses.length > 0 ? (
-      <div className="registered-courses">
-        <div className="course-header">
-          <span className="course-id">Course ID</span>
-          <span className="course-name">Course Name</span>
-          <span className="course-credits">Credits</span>
-          <span className="course-section">Section</span>
-          <span className="course-action">Action</span>
-        </div>
+      <div className="registered-section">
+        <h2>Your Registered Courses</h2>
         
-        {registeredCourses.map(course => {
-          // Find the original course with full details
-          const courseDetails = courses.find(c => c.id === course.id) || {
-            prerequisites: [],
-            department: course.department || 'Unknown'
-          };
-          
-          return (
-            <React.Fragment key={course.id}>
-              <div 
-                className="course-item" 
-                onClick={() => toggleCourseDetails(`registered-${course.id}`)}
-              >
-                <span className="course-id">{course.id}</span>
-                <span className="course-name">{course.name}</span>
-                <span className="course-credits">{course.credits}</span>
-                <span className="course-section">{course.section}</span>
-                <span className="course-action" onClick={(e) => e.stopPropagation()}>
-                  <button onClick={() => handleDrop(course.id)} className="button-drop">
-                    Drop Course
-                  </button>
-                </span>
-              </div>
+        {registeredCourses.length > 0 ? (
+          <div className="registered-courses">
+            <div className="course-header">
+              <span className="course-id">Course ID</span>
+              <span className="course-name">Course Name</span>
+              <span className="course-credits">Credits</span>
+              <span className="course-section">Section</span>
+              <span className="course-action">Action</span>
+            </div>
+            
+            {registeredCourses.map(course => {
+              // Find the original course with full details
+              const courseDetails = courses.find(c => c.id === course.id) || {
+                prerequisites: [],
+                department: course.department || 'Unknown'
+              };
               
-              {expandedCourseId === `registered-${course.id}` && (
-                <div className="course-details">
-                  <div className="details-section">
-                    <h4>Course Details</h4>
-                    <p>{course.description}</p>
-                    <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                    <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
-                    <p><strong>Location:</strong> {course.location}</p>
-                    <p><strong>Department:</strong> {courseDetails.department}</p>
-                    <p><strong>Section:</strong> {course.section}</p>
-                    <p><strong>Status:</strong> <span className="status-registered2">Registered</span></p>
-                    
-                    {courseDetails.prerequisites && courseDetails.prerequisites.length > 0 && (
-                      <>
-                        <p><strong>Prerequisites:</strong> {courseDetails.prerequisites.join(', ')}</p>
-                        <div className="prerequisite-status">
-                          {courseDetails.prerequisites.map(prereq => {
-                            const prereqCourse = courses.find(c => c.id === prereq);
-                            const isCompleted = prereqCourse && prereqCourse.completed;
-                            const isRegistered = registeredCourses.some(c => c.id === prereq);
-                            return (
-                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
-                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
-                              </div>
-                            );
-                          })}
+              return (
+                <React.Fragment key={course.id}>
+                  <div 
+                    className="course-item" 
+                    onClick={() => toggleCourseDetails(`registered-${course.id}`)}
+                  >
+                    <span className="course-id">{course.id}</span>
+                    <span className="course-name">{course.name}</span>
+                    <span className="course-credits">{course.credits}</span>
+                    <span className="course-section">{course.section}</span>
+                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => handleDrop(course.id)} className="button-drop">
+                        Drop Course
+                      </button>
+                    </span>
+                  </div>
+                  
+                  {expandedCourseId === `registered-${course.id}` && (
+                    <div className="course-details">
+                      <div className="details-section">
+                        <h4>Course Details</h4>
+                        <p>{course.description}</p>
+                        <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
+                        <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                        <p><strong>Location:</strong> {course.location}</p>
+                        <p><strong>Department:</strong> {courseDetails.department}</p>
+                        <p><strong>Section:</strong> {course.section}</p>
+                        <p><strong>Status:</strong> <span className="status-registered2">Registered</span></p>
+                        
+                        {courseDetails.prerequisites && courseDetails.prerequisites.length > 0 && (
+                          <>
+                            <p><strong>Prerequisites:</strong> {courseDetails.prerequisites.join(', ')}</p>
+                            <div className="prerequisite-status">
+                              {courseDetails.prerequisites.map(prereq => {
+                                const prereqCourse = courses.find(c => c.id === prereq);
+                                const isCompleted = prereqCourse && prereqCourse.completed;
+                                const isRegistered = registeredCourses.some(c => c.id === prereq);
+                                return (
+                                  <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                    {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+                        
+                        <div className="course-actions">
+                          <p><strong>Actions:</strong></p>
+                          <div className="additional-actions">
+                            <button onClick={() => navigate('/plan')} className="button-secondary">View Schedule</button>
+                          </div>
                         </div>
-                      </>
-                    )}
-                    
-                    <div className="course-actions">
-                      <p><strong>Actions:</strong></p>
-                      <div className="additional-actions">
-                        <button onClick={() => navigate('/plan')} className="button-secondary">View Schedule</button>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
-        
-        <div className="course-summary">
-          <span>Total Courses: {registeredCourses.length}</span>
-          <span>Total Credits: {registeredCourses.reduce((sum, course) => sum + course.credits, 0)}</span>
-        </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+            
+            <div className="course-summary">
+              <span>Total Courses: {registeredCourses.length}</span>
+              <span>Total Credits: {registeredCourses.reduce((sum, course) => sum + course.credits, 0)}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="no-results">You haven't registered for any courses yet</div>
+        )}
       </div>
-    ) : (
-      <div className="no-results">You haven't registered for any courses yet</div>
     )}
-  </div>
-)}
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {activeTab === 'waitlisted' && (
   <div className="waitlisted-section">
@@ -926,19 +848,6 @@ const groupedDegreeCourses = {
   </div>
 )}
       
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       <div className="registration-legend">
         <h3>Status Legend</h3>

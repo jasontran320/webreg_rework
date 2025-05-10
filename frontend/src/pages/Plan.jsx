@@ -167,9 +167,6 @@ export default function Planner() {
       }),
     }));
   };
-  
-  
-  
 
   // Check if blocks overlap
   const checkOverlap = (newBlock) => {
@@ -219,7 +216,6 @@ export default function Planner() {
     setShowForm(true)
     window.scrollTo({ top: 85, behavior: "smooth" });
   }
-  
 
   // Handle form submission
   const handleSubmit = () => {
@@ -364,8 +360,6 @@ export default function Planner() {
                 placeholder="e.g., MATH 101"
               />
             </div>
-
-            
             <div className={styles.input_group}>
               <label className={styles.label}>Day of Week</label>
               <select
@@ -408,9 +402,6 @@ export default function Planner() {
                 ))}
               </select>
             </div>
-
-
-            
             <div className={styles.input_group}>
               <label className={styles.label}>
                 Duration: {
@@ -436,18 +427,6 @@ export default function Planner() {
                 className={styles.slider} // define this in your CSS if needed
               />
             </div>
-
-
-
-
-
-
-
-
-
-
-            
-
             <div className={styles.form_buttons}>
               <button 
                 onClick={handleSubmit} 
