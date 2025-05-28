@@ -770,6 +770,10 @@ useEffect(() => {
                             {course.name}
                             {course.required && <span className="required-badge">Required</span>}
                             {course.completed && <span className="completed-badge">Completed</span>}
+                            {
+                              (course.status === "Registered") && !hasRegisteredCorequisite(course) &&
+                              <span className="action-required-badge">Waiting for Corequisite(s)</span>
+                            }
                           </span>
                           <span className="course-credits">{course.credits}</span>
                           <span className={`course-status ${getStatusClass2(course)}`}>
@@ -1090,6 +1094,10 @@ useEffect(() => {
                       {course.name}
                       {course.required && <span className="required-badge">Required</span>}
                       {course.completed && <span className="completed-badge">Completed</span>}
+                      {
+                        (course.status === "Registered") && !hasRegisteredCorequisite(course) &&
+                        <span className="action-required-badge">Waiting for Corequisite(s)</span>
+                      }
                     </span>
                     <span className="course-credits">{course.credits}</span>
                     <span className={`course-status ${getStatusClass2(course)}`}>
@@ -1316,7 +1324,7 @@ useEffect(() => {
                       {course.name}
                       {
                         !hasRegisteredCorequisite(course) &&
-                        <span className="action-required-badge">Action Required</span>
+                        <span className="action-required-badge">Waiting for Corequisite(s)</span>
                         }
                       {//course.completed && <span className="completed-badge">Completed</span>
                       }
