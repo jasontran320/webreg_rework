@@ -1598,6 +1598,7 @@ useEffect(() => {
                     <div className="waitlist-info">
                       <p><strong>Estimated Time to Registration:</strong> Based on your position, you may be able to register in 1-2 weeks</p>
                       <p><strong>Notification:</strong> You will be notified when a spot becomes available</p>
+                      <p><strong>Required Actions:</strong> Please Enroll in any required corequisites upon registering</p>
                     </div>
                     
                     <div className="course-actions">
