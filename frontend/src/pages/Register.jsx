@@ -158,6 +158,7 @@ export default function Register() {
     totalCredits: 120,
     completedCredits: 35,
     currentlyRegistered: registeredCourses.reduce((sum, course) => sum + course.credits, 0),
+    currentlyWaitlisted: waitlistedCourses.reduce((sum, course) => sum + course.credits, 0),
     remainingRequired: 120 - 35 - registeredCourses.reduce((sum, course) => sum + course.credits, 0),
   };
 
@@ -390,8 +391,9 @@ const handleRegister = useCallback((course) => {
       return;
     }
 
-    if (degreeProgress.currentlyRegistered + course.credits > 18) {
-      alert(`You currently have ${degreeProgress.currentlyRegistered} units. You can only register maximum 18. Registering in this class will exceed that threshold. Please contact your administrators for special circumstances`);
+    if (degreeProgress.currentlyRegistered + degreeProgress.currentlyWaitlisted + course.credits > 18) {
+      let total = degreeProgress.currentlyRegistered + degreeProgress.currentlyWaitlisted
+      alert(`You currently have ${total} registered and/or waitlisted units. You can only register maximum 18. Registering in this class will exceed that threshold. Please contact your administrators for special circumstances`);
       return;
     }
 
