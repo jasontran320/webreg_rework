@@ -218,10 +218,9 @@ const groupedDegreeCourses = {
   const checkPrerequisites = (course) => {
     if (!course.prerequisites || course.prerequisites.length === 0) return true;
     if (course.status === 'Full') return false;
-    // Check if prerequisites are completed or currently registered
+    // Only check if prerequisites are completed
     return course.prerequisites.every(prereqId => 
-      courses.find(c => c.id === prereqId && c.completed) || 
-      registeredCourses.some(c => c.id === prereqId)
+      courses.find(c => c.id === prereqId && c.completed)
     );
   };
 

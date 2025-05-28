@@ -52,8 +52,8 @@ const defaultCourses = [
     description: "Introduction to fundamental programming concepts, software engineering principles, and computational thinking."
   },
   {
-    id: 'CS101-L',
-    name: 'Introduction to Computer Science-Lab',
+    id: 'CS201',
+    name: 'Intermediate Computer Science',
     credits: 2,
     status: 'Waitlisted',
     seats: 30,
@@ -65,12 +65,12 @@ const defaultCourses = [
     prerequisites: ['CS101'],
     block: {
       id: '2',
-      title: 'CS101 Lab',
+      title: 'CS201',
       day: 'monday',
       startTime: '13:00',
       endTime: '14:30',
       color: 'green',
-      description: "Lab for basic data structures class CS101. Please Enroll whenever possible. For waitlisted studnents, contact admins",
+      description: "Advanced data structures class.",
       location: "HIB 125",
       locationCoords:{
         "lat": 33.64834506581709,
@@ -80,7 +80,7 @@ const defaultCourses = [
     }
     },
     location: "HIB 125",
-    description: "Lab for basic data structures class CS101. Please Enroll whenever possible. For waitlisted studnents, contact admins"
+    description: "Advanced data structures class."
   },
   {
     id: 'CS301',
@@ -340,7 +340,7 @@ const defaultCourses = [
     enrolled: 35,
     waitlist: 0,
     required: true,
-    completed: false,
+    completed: true,
     department: 'CS',
     prerequisites: [],
     block: {
@@ -466,7 +466,7 @@ const defaultCourses = [
     required: false,
     completed: false,
     department: 'CS',
-    prerequisites: [],
+    prerequisites: ['CS122A'],
     block: {
       id: '15',
       title: 'CS 122B',
@@ -1107,8 +1107,8 @@ const defaultCourses = [
     description: "Workshop-based course in short story writing with peer critique and revision."
   },
   {
-    id: 'MATH221-D1',
-    name: 'Linear Algebra - Discussion 1',
+    id: 'MATH333',
+    name: 'Multi variable calculus',
     credits: 4,
     status: 'Available',
     seats: 40,
@@ -1125,7 +1125,7 @@ const defaultCourses = [
       startTime: '11:00',
       endTime: '12:30',
       color: 'blue',
-      description: "Discussion section 1 to MATH221.",
+      description: "Delve into calculus on a much larger scale",
       location: "RH 100",
       locationCoords: {
     "lat": 33.64430784211032,
@@ -1135,7 +1135,7 @@ const defaultCourses = [
 }
     },
     location: "RH 100",
-    description: "Discussion section 1 to MATH221."
+    description: "Delve into calculus on a much larger scale"
   },
 ];
 
