@@ -65,7 +65,7 @@ const defaultCourses = [
     prerequisites: ['CS101'],
     block: {
       id: '2',
-      title: 'CS 201',
+      title: 'CS101 Lab',
       day: 'monday',
       startTime: '13:00',
       endTime: '14:30',
@@ -776,7 +776,7 @@ const defaultCourses = [
     required: true,
     completed: false,
     department: 'PHYS',
-    prerequisites: ['PHYS101', 'MATH201'],
+    prerequisites: ['PHYS101', 'MATH201', 'MATH333'],
     block: {
       id: '25',
       title: 'PHYS 102',
@@ -993,7 +993,7 @@ const defaultCourses = [
     required: true,
     completed: false,
     department: 'MATH',
-    prerequisites: ['MATH201'],
+    prerequisites: ['MATH201', 'MATH333'],
     block: {
       id: '32',
       title: 'MATH 130A',
@@ -1107,8 +1107,8 @@ const defaultCourses = [
     description: "Workshop-based course in short story writing with peer critique and revision."
   },
   {
-    id: 'MATH213',
-    name: 'Introduction to Numerical Analysis',
+    id: 'MATH221-D1',
+    name: 'Linear Algebra - Discussion 1',
     credits: 4,
     status: 'Available',
     seats: 40,
@@ -1117,15 +1117,15 @@ const defaultCourses = [
     required: false,
     completed: false,
     department: 'MATH',
-    prerequisites: ['MATH201', 'MATH221'],
+    prerequisites: ['MATH221'],
     block: {
       id: '36',
-      title: 'MATH 213',
+      title: 'MATH 221 Discussion',
       day: 'monday',
       startTime: '11:00',
       endTime: '12:30',
       color: 'blue',
-      description: "Numerical solutions to equations, interpolation, numerical integration, and error analysis.",
+      description: "Discussion section 1 to MATH221.",
       location: "RH 100",
       locationCoords: {
     "lat": 33.64430784211032,
@@ -1135,7 +1135,7 @@ const defaultCourses = [
 }
     },
     location: "RH 100",
-    description: "Numerical solutions to equations, interpolation, numerical integration, and error analysis."
+    description: "Discussion section 1 to MATH221."
   },
 ];
 
