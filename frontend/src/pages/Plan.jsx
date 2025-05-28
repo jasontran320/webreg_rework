@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Calendar, Clock, AlertCircle, Check, X } from 'lucide-react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { X, 
+  Calendar, 
+  AlertCircle,
+  Check,
+  Palette,
+  Clock, 
+  MapPin,        // New: for location
+  Save,          // New: for edit action (not Edit2)
+  Trash } from 'lucide-react';
 import styles from '../styles/plan.module.css'
 import { CourseContext } from '../data/CourseContext.jsx'
+import {LocationPicker} from '../components/LocationDemo.jsx'
 
 // Sample data for class blocks
 
@@ -30,10 +39,71 @@ export default function Planner() {
     duration: 1
   });
   const [showForm, setShowForm] = useState(false);
+
+  const [validTitle, setvalidTitle] = useState(true);
+  const [validStart, setvalidStart] = useState(true);
+  const [validDay, setvalidDay] = useState(true);
+  const [validDuration, setvalidDuration] = useState(true);
+  const [validClick, setvalidClick] = useState(false);
+  const [defaultStart, setdefaultStart] = useState(true);
+  const [defaultDay, setdefaultDay] = useState(true);
+  const [validSubmit, setvalidSubmit] = useState(false);
+
+
+
   const [error, setError] = useState('');
+  const [error2, setError2] = useState('');
   const [success, setSuccess] = useState('');
+  const [success2, setSuccess2] = useState('');
   useEffect(() => {
     setError('')
+    if (!showForm) {
+      setNewBlock({
+        title: '',
+        day: 'monday',
+        startTime: '08:00',
+        endTime: '09:00',
+        color: 'random',
+        duration: 1
+      });
+      setvalidTitle(false)
+    }
+    setvalidDuration(true)
+    if (!validClick)  {
+          setvalidStart(false)
+          setvalidDay(false)
+          setdefaultStart(true)
+          setdefaultDay(true)
+        }
+      else {
+        setvalidStart(true)
+        setvalidDay(true)
+        setvalidClick(false)
+        setdefaultStart(false)
+        setdefaultDay(false)
+      }
+
+      if (showForm) {
+        if (convertTimeToMinutes(newBlock.endTime) > convertTimeToMinutes("23:00")) {
+      setError('End time must be within bounds');
+      setvalidDuration(false);
+      setvalidStart(false);
+      setvalidSubmit(false);
+    } 
+    
+    else if (checkOverlap(newBlock)) {
+      setError('This block overlaps with an existing block');
+      setvalidDuration(false);
+      setvalidStart(false);
+      setvalidDay(false);
+      setvalidSubmit(false);
+    }
+    
+    
+    else if (!newBlock.title) {setvalidSubmit(false); setError('Title Cannot Be Empty');}
+      }
+     
+      
   }, [showForm]); 
 
   
@@ -93,11 +163,22 @@ export default function Planner() {
       }
     });
     const deletedString = deleted_courses.length > 1
-      ? deleted_courses.slice(1).map(course => course.id).join(', ')
-      : '';
+          ? deleted_courses.slice(1).map(course => course.id).join(', ')
+          : '';
+        
 
-   const confirmed = !deletedString || window.confirm(`Are you sure you want to delete ${course.id}? This is a prerequisite to these classes which will also be all deleted: ${deletedString}`);
-    if (confirmed) {
+        const confirmed = !deletedString || window.confirm(
+          `Are you sure you want to drop ${courseId}? This is a prerequisite to these classes which will also be dropped: ${deletedString}`
+        );
+        
+        if (!deletedString) {
+            let confirm = window.confirm(
+          `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
+          );
+          if (!confirm) {return false;}
+        } 
+   
+   if (confirmed) {
 
       // Now filter the state lists
       setRegisteredCourses(
@@ -140,33 +221,109 @@ export default function Planner() {
       );
       if (deletedString) setSuccess('Blocks deleted successfully'); else setSuccess('Block deleted successfully');
       setTimeout(() => setSuccess(''), 3000);
+      return true;
     }
     else {
       setSuccess('Deletion Cancelled');
       setTimeout(() => setSuccess(''), 3000);
+      return false
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-  
+  const handleInputChange = (e, dur=null) => {
+    let { name, value } = e.target;
+    let previous = true;
+   
     // Check if the value for 'duration' is a valid integer
-    if (name === 'duration' && isNaN(Number(value))) {
+    if ((name === 'duration' || name === 'duration1' || name === 'duration2') && isNaN(Number(value))) {
       setError('Invalid input: duration must be an integer');
       setTimeout(() => setError(''), 3000);
       return; // Stop further execution if invalid
     }
-    setNewBlock(prev => ({
-      ...prev,
-      [name]: value,
-      ...(name === 'duration' && {
-        endTime: addHoursToTime(prev.startTime, value),
-      }),
-      ...(name === 'startTime' && {
-        endTime: addHoursToTime(value, prev.duration),
-      }),
-    }));
-  };
+
+    if (name === 'title') {
+        if (value) {setvalidTitle(true); setvalidSubmit(true);}
+        else {setvalidTitle(false)}
+    }
+    
+    if (name === 'duration1' || name === 'duration2') {
+      dur = Number(dur)
+      value = Number(value)
+      if (name === 'duration1') {
+        name = 'duration';
+        value = dur / 60 + value
+      }
+      else {
+        if (value >= 60) {
+          setError('Value in minutes cannot exceed 60');
+          setvalidDuration(false);
+          return;
+        }
+        else {
+           setError('');
+           setvalidDuration(true);
+        }
+        
+        name = 'duration'; value = dur + value / 60
+      }
+      if (value < 0.5) {
+          setError('Duration should be at least 30 minutes');
+          setvalidDuration(false);
+          setvalidSubmit(false);
+          previous = false;
+      }
+      else {
+        setError('');
+           setvalidDuration(true);
+      }
+    }
+    
+    const updatedBlock = {
+  ...newBlock,
+  [name]: value,
+  ...(name === 'duration' && {
+    endTime: addHoursToTime(newBlock.startTime, value),
+  }),
+  ...(name === 'startTime' && {
+    endTime: addHoursToTime(value, newBlock.duration),
+  }),
+};
+
+setNewBlock(updatedBlock);
+
+// Now use `updatedBlock`, not `newBlock`, for validation
+
+if (!updatedBlock.title) {
+  setError('Title Cannot Be Empty');
+}
+
+if (convertTimeToMinutes(updatedBlock.endTime) > convertTimeToMinutes("23:00")) {
+  setError('End time must be within bounds');
+  setvalidDuration(false);
+  setvalidStart(false);
+  setvalidSubmit(false);
+} else if (checkOverlap(updatedBlock)) {
+  setError('This block overlaps with an existing block');
+  setvalidDuration(false);
+  setvalidDay(false);
+  setvalidStart(false);
+  setvalidSubmit(false);
+} else {
+  if (previous) {if (updatedBlock.title) setError('');
+  setvalidDuration(true);
+  setvalidSubmit(true);}
+  if (!defaultStart) 
+    setvalidStart(true);
+  if (!defaultDay) 
+    setvalidDay(true)
+  
+}
+if (!updatedBlock.title) {
+  //setError('Title Cannot Be Empty');
+  setvalidSubmit(false)
+}
+
+};
 
   // Check if blocks overlap
   const checkOverlap = (newBlock) => {
@@ -206,15 +363,62 @@ export default function Planner() {
     return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
   };  
 
+  const formatDuration = (duration) => {
+      const hours = Math.floor(duration);
+      const minutes = Math.round((duration - hours) * 60);
+      return { hours, minutes };
+  }
+
+  function combineDuration(hours, minutes) {
+    return hours + minutes / 60;
+  }
+
+
   const handleClick = (day, time) => {
-    setNewBlock(prev => ({
-      ...prev,
-      ["startTime"]: time,
-      ["day"]: day,
-      ["endTime"]: addHoursToTime(time, prev.duration)
-    }));
+    const updatedBlock = {
+      ...newBlock, // assuming you're in a place where newBlock is available
+      startTime: time,
+      day: day,
+      endTime: addHoursToTime(time, newBlock.duration), // use current duration
+    };
+
+    setNewBlock(updatedBlock);
+
+if (!updatedBlock.title) {
+  setError('Title Cannot Be Empty');
+}
+
+
+if (convertTimeToMinutes(updatedBlock.endTime) > convertTimeToMinutes("23:00")) {
+  setError('End time must be within bounds');
+  setvalidDuration(false);
+  setvalidStart(false);
+  setvalidSubmit(false);
+} else if (checkOverlap(updatedBlock)) {
+  setError('This block overlaps with an existing block');
+  setvalidDuration(false);
+  setvalidDay(false);
+  setvalidStart(false);
+  setvalidSubmit(false);
+} else {
+  if (updatedBlock.title) setError('');
+  setvalidDuration(true); 
+    setvalidStart(true);
+    setvalidDay(true)
+    setvalidSubmit(true);
+}
+if (!updatedBlock.title) {
+  setvalidSubmit(false); 
+  //setError('Title Cannot Be Empty');
+}
+
+
+    setvalidClick(true)
+    setdefaultStart(false)
+    setdefaultDay(false)
+    
     setShowForm(true)
-    window.scrollTo({ top: 85, behavior: "smooth" });
+    setTimeout(window.scrollTo({ top: 85, behavior: "smooth" }, 50));
   }
 
   // Handle form submission
@@ -222,8 +426,12 @@ export default function Planner() {
 
     if (newBlock.title.trim() === '') {
       setError('Please enter a title for the block');
+      setTimeout(() => setError(''), 3000);
+      setvalidTitle(false)
       return;
     }
+
+    
 
     if (!newBlock.duration) {
       handleInputChange({ 
@@ -234,24 +442,41 @@ export default function Planner() {
       return;
     }
     
+    if (newBlock.duration < 0.5) {
+        setError('Invalid input: duration must be at least 30 minutes');
+        setTimeout(() => setError(''), 3000);
+        setvalidDuration(false)
+        return;
+      }
+    
     if (convertTimeToMinutes(newBlock.startTime) >= convertTimeToMinutes(newBlock.endTime)) {
       setError('End time must be after start time');
+      setTimeout(() => setError(''), 3000);
       return;
     }
 
     if (convertTimeToMinutes(newBlock.endTime) > convertTimeToMinutes("23:00")) {
       setError('End time must be within bounds');
+      setTimeout(() => setError(''), 3000);
       return;
     }
     
     if (checkOverlap(newBlock)) {
       setError('This block overlaps with an existing block');
+      setTimeout(() => setError(''), 3000);
       return;
     }
     
     const id = (
-      Math.max(...blocks.map(block => parseInt(block.id, 10))) + 1
+      Math.max(
+        36, // So first ID will be 37
+        ...blocks
+          .map(block => parseInt(block.id, 10))
+          .filter(id => !isNaN(id))
+      ) + 1
     ).toString();
+
+
 
     if (newBlock.color == 'random') {
       const filtered = colorOptions.filter(opt => opt.value !== 'random');
@@ -285,7 +510,7 @@ export default function Planner() {
 
     // If the course is found in registeredCourses, filter it out
     if (courseInRegistered) {
-      handleDrop(courseInRegistered.id);
+      if (!handleDrop(courseInRegistered.id)) return true;
     }
 
     // If the course is found in waitlistedCourses, filter it out
@@ -299,6 +524,15 @@ export default function Planner() {
       setBlocks(blocks.filter(block => block.id !== blockId));
       setSuccess('Block deleted successfully');
       setTimeout(() => setSuccess(''), 3000);
+    }
+
+    if (checkOverlap(newBlock)) {
+      setError('');
+      setvalidDuration(true);
+      if (defaultStart) setvalidStart(true);
+      if (defaultDay) setvalidDay(true);
+      setvalidSubmit(true);
+      
     }
     
   };
@@ -316,13 +550,194 @@ export default function Planner() {
     return { top: `${top}px`, height: `${height}px` };
   };
 
+  const [selectedBlock, setSelectedBlock] = useState({
+    title: '',
+    day: 'monday',
+    startTime: '08:00',
+    endTime: '09:00',
+    color: 'random',
+    duration: 1
+  });
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+  if (showPopup) {
+      setShowForm(false)
+      document.body.classList.add('no-scroll');
+      if (selectedBlock.description) setIsEditingDescription(false);
+      else setIsEditingDescription(true);
+    } else {
+      document.body.classList.remove('no-scroll');
+      let idToFind = selectedBlock.id;
+      if (idToFind) {
+        const block = blocks.find(block => block.id === idToFind);  
+        if (block) {
+
+            setIsEditingTitle(false);
+            setIsEditingColor(false);
+            setError2('')
+
+            //setSelectedBlock(block);
+          }
+      }
+    }
+  }, [showPopup]);
+
+
+  const handleBlockClick = (event, block) => {
+    event.stopPropagation(); // Prevent triggering parent div click events
+    //setSelectedBlock(block);
+    let default_description = block.description ? block.description : '';
+    let default_location = block.location ? block.location: "No Location set"
+    setSelectedBlock({ ...block, description: default_description, location: default_location });
+
+    setShowPopup(true);
+  };
+  
+  const closePopup = (button=true) => {
+    if (button || !isEditingDescription || !isfromClick) setShowPopup(false);
+  };
+
+
+  /* Helper function to use in your component */
+  function getColorForBlock(color) {
+    const colorMap = {
+      red: '#ef4444',
+      blue: '#3b82f6',
+      green: '#10b981',
+      yellow: '#f59e0b',
+      purple: '#8b5cf6',
+      pink: '#ec4899',
+      // Add more colors as needed
+    };
+    
+    return colorMap[color] || '#6b7280';  // Default to gray if no match
+  }
+
+    const handleSave = () => {
+      if (!selectedBlock.title) {
+        setSuccess2('')
+        setError2('Title cannot be empty, please try again');
+      }
+      else {
+        // Handle random color if needed
+        let updatedBlock = { ...selectedBlock };
+
+        // Find and update the block
+        setBlocks(prevBlocks => 
+          prevBlocks.map(block => 
+            block.id === selectedBlock.id ? updatedBlock : block
+          )
+        );
+
+        setSuccess('Block Saved')
+        setTimeout(() => setSuccess(''), 3000);
+        closePopup(true);
+      }
+    };
+    
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [isEditingDescription, setIsEditingDescription] = useState(false);
+    const [isEditingColor, setIsEditingColor] = useState(false);
+    let isfromColorClick = false;
+    const [isfromClick, setisfromClick] = useState(false);
+
+    // useEffect(() => {
+    //   if (selectedBlock) {
+    //     setEditedTitle(selectedBlock.title || '');
+    //     setEditedDescription(selectedBlock.description || '');
+    //     setEditedLocation(selectedBlock.location || '');
+    //     setEditedColor(selectedBlock.color || '');
+    //     setEditedTime(selectedBlock.time || '');
+    //   }
+    // }, [selectedBlock]);
+
+
+  const handleInputChange2 = (e) => {
+      let { name, value } = e.target;
+    
+      // Check if the value for 'duration' is a valid integer
+      if ((name === 'duration') && isNaN(Number(value))) {
+        setSuccess2('')
+        setError2('Invalid input: duration must be an integer');
+        setTimeout(() => setError2(''), 3000);
+        return; // Stop further execution if invalid
+      }
+
+      if (name === 'description') {
+        value = value.replace(/^\s+/, ''); }
+
+      if (name === 'title') {
+        value = value.replace(/^\s+/, '');
+      if (value) {
+          setError2('');
+      } else {
+          setSuccess2('')
+          setError2('Title Cannot Be Empty');
+      }
+}
+      
+      const updatedBlock = {
+    ...selectedBlock,
+    [name]: value,
+    ...(name === 'duration' && {
+      endTime: addHoursToTime(newBlock.startTime, value),
+    }),
+    ...(name === 'startTime' && {
+      endTime: addHoursToTime(value, newBlock.duration),
+    }),
+  };
+  setSelectedBlock(updatedBlock);
+  };
+
+
+
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isEditingDescription && isfromClick && inputRef.current) {
+    const textarea = inputRef.current;
+
+    const timeoutId = setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        selectedBlock.description.length,
+        selectedBlock.description.length
+      );
+    }, 0); // no delay or small delay is often better for cursor control
+
+    return () => clearTimeout(timeoutId);
+  }
+  }, [isEditingDescription]);
+
+
+const [isMapOpen, setIsMapOpen] = useState(false);
+
+
+const parseLocationToCoords = (locationString) => {
+  // If you stored coordinates as a string like "33.6405, -117.8443"
+  if (locationString && locationString.includes(',')) {
+    const [lat, lng] = locationString.split(',').map(s => parseFloat(s.trim()));
+    if (!isNaN(lat) && !isNaN(lng)) {
+      return { lat, lng, address: locationString };
+    }
+  }
+  return null;
+};
+
+
+
   return (
     <div className={styles.planner_container}>
       <div className={styles.planner_header}>
         <h1 className={styles.planner_title}>Class Schedule Planner</h1>
         <button 
           className={`${styles.button} ${showForm ? styles.button_red : styles.button_blue}`}
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm)
+            if (!showForm) {setTimeout(window.scrollTo({ top: 85, behavior: "smooth" }, 50));}
+          }}
         >
           {showForm ? <X size={16} /> : <Calendar size={16} />}
           {showForm ? 'Close Form' : 'Add New Block'}
@@ -337,85 +752,128 @@ export default function Planner() {
         </div>
       )}
 
-      {showForm && (
-        <div className= {styles.form_container}>
-          <h2 className={styles.form_title}>Add New Class or Event Block</h2>
-          
-          {error && (
-            <div className= {`${styles.message_container} ${styles.error_message}`}>
-              <AlertCircle size={16} />
-              <span>{error}</span>
-            </div>
-          )}
-          
-          <div className={styles.form_layout}>
-            <div className={styles.input_group}>
-              <label className={styles.label}>Title</label>
-              <input
-                type="text"
-                name="title"
-                value={newBlock.title}
-                onChange={handleInputChange}
-                className={styles.input}
-                placeholder="e.g., MATH 101"
-              />
-            </div>
-            <div className={styles.input_group}>
-              <label className={styles.label}>Day of Week</label>
-              <select
-                name="day"
-                value={newBlock.day}
-                onChange={handleInputChange}
-                className={styles.select}
-              >
-                {days.map(day => (
-                  <option key={day} value={day}>
-                    {day.charAt(0).toUpperCase() + day.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.input_group}>
-              <label className={styles.label}>Start Time</label>
-                <select
-                  name="startTime"
-                  value={newBlock.startTime}
-                  onChange={handleInputChange}
-                  className={styles.select_small}
-                >
-                  {timeOptions.map(time => (
-                    <option key={`start-${time}`} value={time}>{format_time(time)}</option>
-                  ))}
-                </select>
-            </div>
 
-            <div className={styles.input_group}>
-              <label className={styles.label}>Block Color</label>
-              <select
-                name="color"
-                value={newBlock.color}
-                onChange={handleInputChange}
-                className={styles.select}
-              >
-                {colorOptions.map(color => (
-                  <option key={color.value} value={color.value}>{color.label}</option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.input_group}>
-              <label className={styles.label}>
-                Duration: {
-                  <input
-                    type="text"
-                    name="duration"
-                    value={newBlock.duration}
-                    onChange={handleInputChange}
-                    className={styles.input_small}
-                    placeholder="e.g., 1.5"
-                  
-                  />
-                } hrs 
-              </label>
+
+
+      {showForm && (
+      <div className={styles.form_container}>
+        <h2 className={styles.form_title}>Add New Class or Event Block</h2>
+      
+        {error && (
+          <div className={`${styles.message_container} ${styles.error_message}`}>
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+      
+        <div className={styles.form_layout}>
+          <div className={styles.input_group}>
+            <label className={styles.label}>Title</label>
+            <input
+              type="text"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.target.blur(); // This removes focus from the input
+                }
+              }}
+              name="title"
+              value={newBlock.title}
+              onChange={handleInputChange}
+              className={validTitle ? styles.input : `${styles.input} ${styles.required}`}
+              placeholder="e.g., MATH 101"
+            />
+          </div>
+
+          <div className={styles.input_group}>
+            <label className={styles.label}>Day of Week</label>
+            <select
+              name="day"
+              onClick={() => {
+                if (!checkOverlap(newBlock) && defaultDay) {setvalidDay(true); setdefaultDay(false)}
+              }}
+              value={newBlock.day}
+              onChange={handleInputChange}
+              className={validDay ? styles.select : `${styles.select} ${styles.required}`}
+            >
+              {days.map(day => (
+                <option key={day} value={day}>
+                  {day.charAt(0).toUpperCase() + day.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.input_group}>
+            <label className={styles.label}>Start Time</label>
+            <select
+              name="startTime"
+              onClick={() => {
+                if (!checkOverlap(newBlock) && defaultStart) {setvalidStart(true); setdefaultStart(false)}
+              }}
+              value={newBlock.startTime}
+              onChange={handleInputChange}
+              className={validStart ? styles.select_small : `${styles.select_small} ${styles.required}`}
+            >
+              {timeOptions.map(time => (
+                <option key={`start-${time}`} value={time}>{format_time(time)}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.input_group}>
+            <label className={styles.label}>Block Color</label>
+            <select
+              name="color"
+              value={newBlock.color}
+              onChange={handleInputChange}
+              className={styles.select}
+            >
+              {colorOptions.map(color => (
+                <option key={color.value} value={color.value}>{color.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className={`${styles.input_group} ${styles.duration_field}`}>
+            <label className={styles.label}>Duration</label>
+            <div className={styles.duration_container}>
+              <div className={styles.duration_input_wrapper}>
+                <input
+                  type="number"
+                  name="duration1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.target.blur(); // This removes focus from the input
+                    }
+                  }}
+                  onBlur={(e) => {
+                  e.target.value = Number(e.target.value); // This strips leading 0s on blur
+                }}
+                  value={formatDuration(newBlock.duration).hours.toString()}
+                  onChange={(e) => handleInputChange(e, formatDuration(newBlock.duration).minutes)}
+                  className={validDuration ? styles.input_small : `${styles.input_small} ${styles.required}`}
+                  placeholder="1.5"
+                />
+                <span className={styles.duration_text}>hours</span>
+
+                <input
+                  type="number"
+                  name="duration2"
+                  onBlur={(e) => {
+                  e.target.value = Number(e.target.value); // This strips leading 0s on blur
+                }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.target.blur(); // This removes focus from the input
+                    }
+                  }}
+                  value={formatDuration(newBlock.duration).minutes.toString()}
+                  onChange={(e) => handleInputChange(e, formatDuration(newBlock.duration).hours)}
+                  className={validDuration ? styles.input_small : `${styles.input_small} ${styles.required}`}
+                  placeholder="1.5"
+                />
+                <span className={styles.duration_text}>minutes</span>
+              </div>
               <input
                 type="range"
                 name="duration"
@@ -424,21 +882,30 @@ export default function Planner() {
                 step="0.5"
                 value={newBlock.duration}
                 onChange={handleInputChange}
-                className={styles.slider} // define this in your CSS if needed
+                className={validDuration ? styles.slider : `${styles.slider} ${styles.required}`}
               />
-            </div>
-            <div className={styles.form_buttons}>
-              <button 
-                onClick={handleSubmit} 
-                className={`${styles.button} ${styles.button_green}`}
-              >
-                <Check size={16} />
-                Add Block
-              </button>
             </div>
           </div>
         </div>
-      )}
+
+        <div className={styles.form_buttons}>
+          <button
+            onClick={handleSubmit}
+            className={validSubmit ? `${styles.button} ${styles.button_green}`: `${styles.button} ${styles.disabled}`}
+          >
+            <Check size={16} />
+            Add Block
+          </button>
+        </div>
+      </div>
+    )}
+
+
+
+
+
+
+
 
       {/* Calendar view */}
       <div className={styles.calendar_container}>
@@ -480,16 +947,20 @@ export default function Planner() {
                     const { top, height } = getBlockPosition(block);
                     return (
                       <div
-                        key={block.id}
+                        key={block.id || `block-${day}-${index}`}
                         className={`${styles.block} ${styles[`block_${block.color}`]}`}
                         style={{ top, height }}
+                        onClick={(e) => handleBlockClick(e, block)}
                       >
                         <div className={styles.block_header}>
                           <div className={styles.block_title}>
                             {block.title}
                           </div>
                           <button
-                            onClick={() => handleDeleteBlock(block.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteBlock(block.id)
+                            }}
                             className={styles.delete_button}
                           >
                             <X size={14} />
@@ -506,6 +977,321 @@ export default function Planner() {
           ))}
         </div>
       </div>
+
+      {showPopup && selectedBlock && (
+        <React.Fragment key={`popup-${selectedBlock.id}`}>
+          <div 
+            className={styles.popup_overlay} 
+            onClick={() => closePopup(false)}
+            style={{ animation: 'fadeIn 0.2s ease-out' }}
+          >
+            <div 
+              className={`${styles.popup_content} ${styles[`block_${selectedBlock.color}`]}`} 
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                animation: 'slideInFromLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transformOrigin: 'left center',
+                borderLeft: `6px solid ${getColorForBlock(selectedBlock.color)}`,
+              }}
+            >
+              {error2 && (
+                <div className= {`${styles.message_container} ${styles.error_message}`}>
+                  <AlertCircle size={16} />
+                  <span>{error2}</span>
+                </div>
+              )}
+
+              {success2 && (
+                <div className= {`${styles.message_container} ${styles.success_message}`}>
+                  <Check size={16} />
+                  <span>{success2}</span>
+                </div>
+              )}
+              <React.Fragment key={`content-${selectedBlock.id}`}>
+                <div className={styles.popup_header}>
+
+
+                  <div
+                    onClick={() => setIsEditingTitle(true)}
+                    className={`${styles.editableWrapper} ${styles[selectedBlock.color]}`}
+                  >
+                    {isEditingTitle ? (
+                      <input
+                        type="text"
+                        name="title"
+                        value={selectedBlock.title}
+                        onChange={handleInputChange2}
+                        onBlur={() => 
+                        {
+                          if (selectedBlock.title) {
+                                setIsEditingTitle(false);
+                                setError2('');
+
+                                const updatedBlock = {
+                                    ...selectedBlock,
+                                    title: selectedBlock.title.trim()
+                                };
+
+                                setSelectedBlock(updatedBlock);
+                            }
+
+                            else {setSuccess2(''); setError2("Title cannot be empty, please try again"); }
+                        }
+                        } // Exit edit mode when focus is lost
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+
+                            if (selectedBlock.title) {
+                                setIsEditingTitle(false);
+                                setError2('');
+
+                                const updatedBlock = {
+                                    ...selectedBlock,
+                                    title: selectedBlock.title.trim()
+                                };
+
+                                setSelectedBlock(updatedBlock);
+                            }
+
+                            else {setSuccess2(''); setError2("Title cannot be empty, please try again");}
+                            // optionally call a save function here
+                          }
+                        }}
+                        className={`${styles.input_title} ${styles[selectedBlock.color]}`}
+                        autoFocus
+                      />
+                    ) : (
+                      <h2 className={styles.popup_title}>{
+                        //editedTitle
+                        selectedBlock.title
+                        }</h2>
+                    )}
+                  </div>
+  
+                    <button
+                      onClick={() => closePopup(true)}
+                      className={styles.popup_close_button}
+                      aria-label="Close details"
+                    >
+                      <X size={20} />
+                    </button>
+                </div>
+                
+                <div className={styles.popup_details}>
+
+                  <React.Fragment key={`details-${selectedBlock.id}`}>
+                    <div className={styles.popup_detail_item}>
+                      <Calendar size={19} className={styles.icon} />
+                      <span className={styles.popup_info}>{selectedBlock.day.charAt(0).toUpperCase() + selectedBlock.day.slice(1)}</span>
+                    </div>
+                    <div className={styles.popup_detail_item}>
+                      <Clock size={19} className={styles.icon} />
+                      <span className={styles.popup_info}>{format_time(selectedBlock.startTime)} - {format_time(selectedBlock.endTime)}</span>
+                    </div>
+
+                  {/* These next two are currently not integrated into the database for block. */ }
+                    <div
+                      onClick={() => {
+                      setSuccess2('')
+                      setIsMapOpen(true); // Add this state
+                    }}
+                      className={`${styles.editableWrapper} ${styles[selectedBlock.color]}`}
+                    >
+                      {selectedBlock.location && (
+                        <div className={styles.popup_detail_item}>
+                          <MapPin
+                        style={{ width: 19, height: 19, flexShrink: 0, flexGrow: 0 }}
+                        className="mapIcon"
+                      />
+                          <span className={styles.popup_info}>{selectedBlock.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    <LocationPicker
+                      isOpen={isMapOpen}
+                      onClose={() => setIsMapOpen(false)}
+                      onLocationSelect={(location, submit) => {
+                        setError2('')
+                        setSuccess2('Location Successfully Saved');
+                        setTimeout(() => setSuccess2(''), 3000);
+                        if (submit) {
+                          setSelectedBlock(prev => ({
+                            ...prev,
+                            location: location.address,
+                            locationCoords: { lat: location.lat, lng: location.lng, address: location.address, address2: location.address2} // Store coords separately
+                        }));
+                      }
+                      else {
+                        setError2('')
+                        setSuccess2('Location Successfully Deleted');
+                        setTimeout(() => setSuccess2(''), 3000);
+                        setSelectedBlock(prev => ({
+                            ...prev,
+                            location: 'No Location set',
+                            locationCoords: null // Store coords separately
+                        }));
+                      }
+                        
+                      }}
+
+                      // Then use:
+                      initialLocation={selectedBlock.locationCoords || null}
+                    />
+
+
+
+                    <div
+                      onClick={() => {setIsEditingColor(true);}}
+                      className={`${styles.editableWrapper} ${styles[selectedBlock.color]}`}
+                    >
+                      { selectedBlock.color && (
+                        <div className={styles.popup_detail_item}>
+                          <Palette size={19} className={styles.icon} />
+                          <span className={styles.popup_info}>{selectedBlock.color.charAt(0).toUpperCase() + selectedBlock.color.slice(1)}</span>
+                        </div>
+                      ) } 
+                      
+                      { isEditingColor &&(
+                        <select
+                          name="color"
+                          value={selectedBlock.color}
+                          onChange={(e) => {
+                          handleInputChange2(e);
+                          if (isfromColorClick) {setIsEditingColor(false); isfromColorClick = false} // Close after selection
+                        }}
+                          className={`${styles.select_popup} ${styles[selectedBlock.color]}`}
+                          autoFocus
+                          onMouseDown={() => {isfromColorClick = true}}
+                          size={colorOptions.length - 1}
+                          onBlur={() => setIsEditingColor(false)} // close on blur
+                          onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.target.blur();
+                          }
+                          }
+                        }
+                        >
+                          {colorOptions
+                            .filter(color => color.value !== 'random')
+                            .map(color => (
+                              <option key={color.value} value={color.value}>
+                                {color.label}
+                              </option>
+                            ))}
+                        </select>
+
+
+                      )
+                    
+                    }
+                    </div>
+
+                    {!isEditingDescription && selectedBlock.description ? (
+
+                    <React.Fragment>
+                      
+                      {(
+                        <div className={`${styles.description_details} ${styles[selectedBlock.color]}`} onClick={() => {setIsEditingDescription(true); setisfromClick(true);}}>
+                          <div className={styles.details_section}>
+                            <h4>Description</h4>
+                            <p style={{ whiteSpace: 'pre-wrap' }}>{selectedBlock.description}</p>
+                          </div>
+                        </div>
+                      )} 
+                    </React.Fragment>
+                  ) : (
+                    <textarea 
+                      className={`${styles.popup_description_input} ${styles[selectedBlock.color]}`} 
+                      placeholder="Optional additional details" 
+                      ref={inputRef}
+                      name="description"
+                      value={selectedBlock.description} 
+                      rows="5" 
+                      cols="50"
+                      onBlur={() => {
+                        setIsEditingDescription(false); 
+                        setisfromClick(false);
+                        if (selectedBlock.description) {
+                                const updatedBlock = {
+                                    ...selectedBlock,
+                                    description: selectedBlock.description.trim()
+                                };
+
+                                setSelectedBlock(updatedBlock);
+                              }
+                      }     
+                    }
+                      onClick={(e) => {e.stopPropagation(); setIsEditingDescription(true); setisfromClick(true);}}
+                      onChange={handleInputChange2}
+                      onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            setIsEditingDescription(false)
+                            setisfromClick(false)
+                            if (selectedBlock.description) {
+                                const updatedBlock = {
+                                    ...selectedBlock,
+                                    description: selectedBlock.description.trim()
+                                };
+
+                                setSelectedBlock(updatedBlock);
+                            }
+                            
+                            
+                            // optionally call a save function here
+                          }
+                          else if (e.key === 'Tab') {
+                            e.preventDefault();
+                            const textarea = inputRef.current;
+                            const start = textarea.selectionStart;
+                            const end = textarea.selectionEnd;
+                            const value = selectedBlock.description;
+
+                            const newValue = value.substring(0, start) + '\t' + value.substring(end);
+                            if (newValue.trim()) {
+                              setSelectedBlock(prev => ({
+                                ...prev,
+                                description: newValue
+                              }));
+                              // Update cursor position after the inserted tab
+                              setTimeout(() => {
+                                textarea.selectionStart = textarea.selectionEnd = start + 1;
+                              }, 0);
+                            }
+
+                            
+                          }
+
+                        }}
+                    />
+                  )}
+                  </React.Fragment>
+                </div>
+                
+                <div className={styles.popup_actions}>
+                  <button className={`${styles.action_button} ${styles.submit}`} onClick={(e)=>{handleSave()}}>
+                    <Check size={16} />
+                    <span>Save</span>
+                  </button>
+                  <button className={`${styles.action_button} ${styles.delete}`} onClick={(e) => {     
+                              if (handleDeleteBlock(selectedBlock.id) === undefined) {
+                                closePopup(true);
+                              }
+                            }}>
+                    <Trash size={16} />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </React.Fragment>
+            </div>
+          </div>
+        </React.Fragment>
+      )}
+
+
+
+
     </div>
   );
 }

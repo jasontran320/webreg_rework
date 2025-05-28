@@ -12,7 +12,7 @@ export default function Header() {
                         <a href="/register" className="nav-link">Register Classes</a>
                     </li>
                     <li className="nav-item">
-                        <a href="/plan" className="nav-link">Plan Classes</a>
+                        <a href="/plan" className="nav-link">Calender</a>
                     </li>
                 </ul>
             </nav>

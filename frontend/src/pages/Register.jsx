@@ -1,6 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback, useEffect  } from 'react';
 import { CourseContext } from '../data/CourseContext.jsx'
 import { useNavigate } from 'react-router-dom';
+import { Computer } from 'lucide-react';
+import Pagination from '../components/Pagination.jsx';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -53,21 +55,25 @@ export default function Register() {
     CS: {
       required: 40,
       completed: 12,
+      icon: '💻',
       description: "Lower-division computer science courses including introductory programming (ICS 31–33 or H32–33), C/C++ (ICS 45C), data structures (ICS 46), computer organization (ICS 51), systems design (ICS 53), and software engineering (IN4MATX 43)."
     },
     MATH: {
       required: 15,
       completed: 8,
+      icon: '📐',
       description: "Mathematics for CS majors including single-variable calculus (MATH 2A–2B), discrete math (ICS 6B & 6D), linear algebra (ICS 6N or MATH 3A), and statistics (STATS 67)."
     },
     ENG: {
       required: 6,
       completed: 3,
+      icon: '📚 ',
       description: "Two approved General Education Category II writing courses not offered by ICS, Engineering, Math, or Economics. University Studies courses allowed with approval."
     },
     Electives: {
       required: 30,
       completed: 12,
+      icon: '🌍',
       description: "Upper-division CS electives and other approved courses beyond the core, supporting breadth and specialization in areas like AI, systems, or theory. Also supports out of major scope classes."
     }
   };
@@ -80,10 +86,16 @@ export default function Register() {
           setSelectedDept('');
           setActiveTab('search');
           setSelectedFilter('completed')
-          window.scrollTo({
+          // window.scrollTo({
+          //   top: document.body.scrollHeight,
+          //   behavior: "smooth"
+          // });
+           setTimeout(() => {
+            window.scrollTo({
             top: document.body.scrollHeight,
             behavior: "smooth"
           });
+          }, 50); // Adjust delay if needed
           // Add your functionality here - e.g., open a modal, navigate to details page
           break;
         case 'registered':
@@ -165,137 +177,6 @@ const groupedDegreeCourses = {
       setSelectedReq(selectedDept === dept ? null : reqData);
     }
 
-  const handleRegister = (course) => {
-    // Check if prerequisites are met
-    const prereqsMet = checkPrerequisites(course);
-    if (!prereqsMet) {
-      alert(`You must complete the prerequisites for ${course.id} first!`);
-      return;
-    }
-    const collision_block = checkOverlap(course.block);
-    if (collision_block) {
-      const blockTitles = collision_block
-        .map(block => `${block.title}@${block.day}: ${format_time(block.startTime)} - ${format_time(block.endTime)}`)
-        .join(', ');
-
-      alert(`This course conflicts with your current schedule for the following event block(s): ${blockTitles}`);
-      return;
-    }
-
-
-    if (course.status === 'Available') {
-      // Mock registration - would be API call in real implementation
-      setCourses(courses.map(c => 
-        c.id === course.id 
-          ? {...c, enrolled: c.enrolled + 1, status: 'Registered'}  // Update status to 'Registered'
-          : c
-      ));
-
-      setBlocks(prevBlocks => [...prevBlocks, course.block]);
-      
-      setRegisteredCourses([...registeredCourses, {
-        id: course.id,
-        name: course.name,
-        credits: course.credits,
-        status: 'Registered',
-        section: '001', // Default section
-        department: course.department,
-        block: course.block,
-        location: course.location,
-        description: course.description,
-        prerequisites: course.prerequisites
-      }]);
-    } else if ((course.status === 'Full' || course.status === 'Waitlisted') && 
-              !waitlistedCourses.some(c => c.id === course.id)) {
-      // Join waitlist only if not already waitlisted
-      setCourses(courses.map(c => 
-        c.id === course.id 
-          ? {...c, waitlist: c.waitlist + 1, status: 'Waitlisted'} 
-          : c
-      ));
-
-      setBlocks(prevBlocks => [...prevBlocks, course.block]);
-      
-      setWaitlistedCourses([...waitlistedCourses, {
-        id: course.id,
-        name: course.name,
-        credits: course.credits,
-        waitlistPosition: course.waitlist + 1,
-        section: '001', // Default section
-        department: course.department,
-        block: course.block,
-        location: course.location,
-        description: course.description,
-        prerequisites: course.prerequisites
-      }]);
-    }
-  };
-
-  const handleDrop = (courseId) => {
-    const course = courses.find(course => course.id === courseId);
-    // Temporary array to store deleted courses
-    let deleted_courses = [];
-
-    // Preprocess: find all courses to delete from both lists
-    registeredCourses.forEach(course => {
-      if (course.id === courseId || course.prerequisites.includes(courseId)) {
-        deleted_courses.push(course);
-      }
-    });
-
-    waitlistedCourses.forEach(course => {
-      if (course.prerequisites.includes(courseId)) {
-        deleted_courses.push(course);
-      }
-    });
-    const deletedString = deleted_courses.length > 1
-      ? deleted_courses.slice(1).map(course => course.id).join(', ')
-      : '';
-
-    const confirmed = !deletedString || window.confirm(`Are you sure you want to delete ${course.id}? This is a prerequisite to these classes which will also be all dropped: ${deletedString}`);
-      if (confirmed) {
-
-        // Now filter the state lists
-        setRegisteredCourses(
-          registeredCourses.filter(course =>
-            course.id !== courseId && !course.prerequisites.includes(courseId)
-          )
-        );
-
-        setWaitlistedCourses(
-          waitlistedCourses.filter(course =>
-            !course.prerequisites.includes(courseId)
-          )
-        );
-
-        const blockIdsToRemove = deleted_courses.map(course => course.block.id);
-        const courseIdsToUpdate = deleted_courses.map(course => course.id);
-        setBlocks(prevBlocks =>
-          prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
-        );
-
-        setCourses(prevCourses =>
-          prevCourses.map(course => {
-            if (!courseIdsToUpdate.includes(course.id)) return course;
-
-            if (course.status === 'Waitlisted') {
-              return {
-                ...course,
-                waitlist: course.waitlist - 1,
-                status: course.waitlist - 1 > 0 ? 'Waitlisted' : 'Available'
-              };
-            } else {
-              const newEnrolled = course.enrolled - 1;
-              return {
-                ...course,
-                enrolled: newEnrolled,
-                status: newEnrolled < course.seats ? 'Available' : 'Waitlisted'
-              };
-            }
-          })
-        );
-      }
-    };
 
   const handleRemoveWaitlist = (courseId) => {
     const waitlistedCourse = waitlistedCourses.find(c => c.id === courseId);
@@ -317,7 +198,7 @@ const groupedDegreeCourses = {
 
   const checkPrerequisites = (course) => {
     if (!course.prerequisites || course.prerequisites.length === 0) return true;
-    
+    if (course.status === 'Full') return false;
     // Check if prerequisites are completed or currently registered
     return course.prerequisites.every(prereqId => 
       courses.find(c => c.id === prereqId && c.completed) || 
@@ -340,12 +221,355 @@ const groupedDegreeCourses = {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
   };
 
+
+
+  const handleDrop = useCallback((courseId, isPropogation=true) => {
+  try {
+    const course = courses.find(course => course.id === courseId);
+    if (!course) {
+      console.error('Course not found:', courseId);
+      return false;
+    }
+
+    // Temporary array to store deleted courses
+    let deleted_courses = [];
+
+    // Preprocess: find all courses to delete from both lists
+    registeredCourses.forEach(course => {
+      if (course.id === courseId || course.prerequisites.includes(courseId)) {
+        deleted_courses.push(course);
+      }
+    });
+
+    waitlistedCourses.forEach(course => {
+      if (course.prerequisites.includes(courseId)) {
+        deleted_courses.push(course);
+      }
+    });
+
+    const deletedString = deleted_courses.length > 1
+      ? deleted_courses.slice(1).map(course => course.id).join(', ')
+      : '';
+    
+
+    const confirmed = !deletedString || window.confirm(
+      `Are you sure you want to drop ${courseId}? This is a prerequisite to these classes which will also be dropped: ${deletedString}`
+    );
+    
+    if (!deletedString && isPropogation) {
+        let confirm = window.confirm(
+      `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
+      );
+      if (!confirm) {return false;}
+    }
+    
+    if (confirmed) {
+      // Get all block IDs and course IDs to update before state changes
+      const blockIdsToRemove = deleted_courses.map(course => course.block.id);
+      const courseIdsToUpdate = deleted_courses.map(course => course.id);
+
+      // Batch all state updates together
+      setRegisteredCourses(prev =>
+        prev.filter(course =>
+          course.id !== courseId && !course.prerequisites.includes(courseId)
+        )
+      );
+
+      setWaitlistedCourses(prev =>
+        prev.filter(course =>
+          !course.prerequisites.includes(courseId)
+        )
+      );
+
+      setBlocks(prevBlocks =>
+        prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
+      );
+
+      setCourses(prevCourses =>
+        prevCourses.map(course => {
+          if (!courseIdsToUpdate.includes(course.id)) return course;
+
+          if (course.status === 'Waitlisted') {
+            const newWaitlist = course.waitlist - 1;
+            return {
+              ...course,
+              waitlist: Math.max(0, newWaitlist),
+              status: newWaitlist > 0 ? 'Waitlisted' : 'Available'
+            };
+          } else {
+            const newEnrolled = Math.max(0, course.enrolled - 1);
+            return {
+              ...course,
+              enrolled: newEnrolled,
+              status: newEnrolled < course.seats ? 'Available' : 'Waitlisted'
+            };
+          }
+        })
+      );
+      
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error dropping course:', error);
+    alert('An error occurred while dropping the course. Please try again.');
+    return false;
+  }
+}, [
+  courses, 
+  registeredCourses, 
+  waitlistedCourses, 
+  setRegisteredCourses, 
+  setWaitlistedCourses, 
+  setBlocks, 
+  setCourses
+]);
+
+const handleDeleteBlock = useCallback((blockId) => {
+  try {
+    const findCourseByBlockId = (courses) => {
+      return courses.find(course => course.block?.id === blockId);
+    };
+
+    const courseInRegistered = findCourseByBlockId(registeredCourses);
+    const courseInWaitlisted = findCourseByBlockId(waitlistedCourses);
+
+    let deleted = false;
+
+    if (courseInRegistered) {
+      const dropped = handleDrop(courseInRegistered.id, false);
+      deleted = dropped;
+    } else if (courseInWaitlisted) {
+      setWaitlistedCourses(prev =>
+        prev.filter(course => course.id !== courseInWaitlisted.id)
+      );
+      setBlocks(prev => prev.filter(block => block.id !== blockId));
+      deleted = true;
+    } else {
+      // Check if block exists before trying to delete
+      const blockExists = blocks.some(block => block.id === blockId);
+      if (blockExists) {
+        setBlocks(prev => prev.filter(block => block.id !== blockId));
+        deleted = true;
+      } else {
+        deleted = false;
+      }
+    }
+
+    return deleted;
+  } catch (error) {
+    console.error('Error deleting block:', error);
+    return false;
+  }
+}, [registeredCourses, waitlistedCourses, blocks, handleDrop]);
+
+const handleRegister = useCallback((course) => {
+  try {
+    // Check if prerequisites are met
+    const prereqsMet = checkPrerequisites(course);
+    if (!prereqsMet) {
+      alert(`You must complete the prerequisites for ${course.id} first!`);
+      return;
+    }
+
+    if (degreeProgress.currentlyRegistered + course.credits > 18) {
+      alert(`You currently have ${degreeProgress.currentlyRegistered} units. You can only register maximum 18. Registering in this class will exceed that threshold. Please contact your administrators for special circumstances`);
+      return;
+    }
+
+    const collision_block = checkOverlap(course.block);
+    if (collision_block && collision_block.length > 0) {
+      const blockTitles = collision_block
+        .map(block => `${block.title}@${block.day}: ${format_time(block.startTime)} - ${format_time(block.endTime)}`)
+        .join(', ');
+
+      const confirmed = window.confirm(
+        `Are you sure you want to register for ${course.id}? This conflicts with these event blocks which will be replaced and dropped: ${blockTitles}.`
+      );
+      
+      if (confirmed) {
+        // Delete all conflicting blocks
+        let allDeleted = true;
+        const failedBlocks = [];
+        
+        for (const block of collision_block) {
+          console.log('Deleting Block ID:', block.id);
+          const result = handleDeleteBlock(block.id);
+          if (!result) {
+            allDeleted = false;
+            failedBlocks.push(block.title || block.id);
+          }
+        }
+        
+        if (!allDeleted) {
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
+    // Proceed with registration
+    if (course.status === 'Available') {
+      // Create the new registered course object
+      const newRegisteredCourse = {
+        id: course.id,
+        name: course.name,
+        credits: course.credits,
+        status: 'Registered',
+        section: '001',
+        department: course.department,
+        block: course.block,
+        location: course.location,
+        description: course.description,
+        prerequisites: course.prerequisites
+      };
+
+      // Batch all state updates together
+      setCourses(prevCourses => 
+        prevCourses.map(c => 
+          c.id === course.id 
+            ? {...c, enrolled: c.enrolled + 1, status: 'Registered'}
+            : c
+        )
+      );
+
+      setBlocks(prevBlocks => [...prevBlocks, course.block]);
+      setRegisteredCourses(prev => [...prev, newRegisteredCourse]);
+
+    } else if ((course.status === 'Waitlisted') && 
+              !waitlistedCourses.some(c => c.id === course.id)) {
+      
+      // Create the new waitlisted course object
+      const newWaitlistedCourse = {
+        id: course.id,
+        name: course.name,
+        credits: course.credits,
+        waitlistPosition: course.waitlist + 1,
+        section: '001',
+        department: course.department,
+        block: course.block,
+        location: course.location,
+        description: course.description,
+        prerequisites: course.prerequisites
+      };
+
+      // Batch all state updates together
+      setCourses(prevCourses => 
+        prevCourses.map(c => 
+          c.id === course.id 
+            ? {...c, waitlist: c.waitlist + 1, status: 'Waitlisted'} 
+            : c
+        )
+      );
+
+      setBlocks(prevBlocks => [...prevBlocks, course.block]);
+      setWaitlistedCourses(prev => [...prev, newWaitlistedCourse]);
+    }
+  } catch (error) {
+    console.error('Error registering for course:', error);
+    alert('An error occurred while registering for the course. Please try again.');
+  }
+}, [
+  checkPrerequisites, 
+  checkOverlap, 
+  format_time, 
+  handleDeleteBlock, 
+  waitlistedCourses, 
+  setCourses, 
+  setBlocks, 
+  setRegisteredCourses, 
+  setWaitlistedCourses
+]);
+
+const [sortBy, setSortBy] = useState('department-asc');
+
+const sortOptions = [
+  { value: 'alphabetical-asc', label: 'Course Name (A-Z)' },
+  { value: 'alphabetical-desc', label: 'Course Name (Z-A)' },
+  { value: 'department-asc', label: 'Course ID (A-Z)' },
+  { value: 'department-desc', label: 'Course ID (Z-A)' }
+];
+
+
+
+
+
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default to 10 per page
+  const perPageOptions = [5, 10, 20, 50, 100];
+  const [currentPage, setCurrentPage] = useState(1);
+
+// Add this function to handle page changes
+const handlePageChange = (page) => {
+  setCurrentPage(page);
+  
+  setTimeout(() => {
+    const courseList = document.querySelector('.course-list');
+    if (courseList) {
+      const offset = 100; // scroll 100px *above* the element
+      const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+      window.scrollTo({
+        top,
+        behavior: 'smooth',
+      });
+    }
+  }, 25);
+};
+
+
+// Add this function to get the current list based on active tab
+const getCurrentList = () => {
+  switch (activeTab) {
+    case 'search':
+      return filteredCourses;
+    case 'registered':
+      return registeredCourses;
+    case 'waitlisted':
+      return waitlistedCourses;
+    default:
+      return [];
+  }
+};
+
+// Add this function to get paginated results
+const getPaginatedResults = () => {
+  const currentList = getCurrentList();
+  const sortedList = [...currentList].sort((a, b) => {
+  switch (sortBy) {
+    case 'alphabetical-asc':
+      return a.name.localeCompare(b.name);
+    case 'alphabetical-desc':
+      return b.name.localeCompare(a.name);
+    case 'department-asc':
+      return a.id.localeCompare(b.id);
+    case 'department-desc':
+      return b.id.localeCompare(a.id);
+    default:
+      return 0;
+  }
+});
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return sortedList.slice(startIndex, endIndex);
+};
+
+// Reset currentPage when filters change (add this useEffect)
+useEffect(() => {
+  setCurrentPage(1);
+}, [activeTab, searchTerm, selectedFilter, selectedDepartment, itemsPerPage, sortBy]);
+
+useEffect(() => {
+  setSortBy("department-asc");
+  setItemsPerPage(10);
+}, [activeTab]);
+
   return (
     <div className="registration-container">
-      <h1>Course Registration</h1>
+      <h1 className='regist-header'>Course Registration</h1>
       
       <div className="degree-progress">
-        <h2>Degree Progress</h2>
+        <h2 className="degree-heading">Degree Progress - Computer Science B.S.</h2>
         <div className="progress-bar-container">
           <div 
             className="progress-bar" 
@@ -394,7 +618,8 @@ const groupedDegreeCourses = {
               className={`requirement-item ${selectedDept === dept ? 'active' : ''}`}
               onClick={(e) => handleDeptClick(e, dept, req)}
             >
-              <span>{dept}:</span>
+              <span>{req.icon} {dept}:</span>
+              
               <div className="req-progress">
                 <div
                   className="req-progress-bar"
@@ -457,7 +682,7 @@ const groupedDegreeCourses = {
                         </div>
                         
                         {expandedCourseId === course.id && (
-                          <div className="course-details">
+                          <div className="course-details2">
                             <div className="details-section">
                               <h4>Course Details</h4>
                               <p>{course.description}</p>
@@ -575,6 +800,35 @@ const groupedDegreeCourses = {
                   </option>
                 ))}
               </select>
+
+
+              <label className='page-label'>Sort By:</label>
+              <select 
+                className='page-options'
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}  // <- Correct handler
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+
+
+               <label className='page-label'>Per Page:</label>
+              <select 
+                className='page-options'
+                value={itemsPerPage}
+                onChange={(e) => {setItemsPerPage(Number(e.target.value));}}
+              >
+                {perPageOptions.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -589,7 +843,7 @@ const groupedDegreeCourses = {
             </div>
 
             {filteredCourses.length > 0 ? (
-              filteredCourses.map(course => (
+              getPaginatedResults().map(course => (
                 <React.Fragment key={course.id}>
                   <div className="course-item" onClick={() => toggleCourseDetails(course.id)}>
                     <span className="course-id">{course.id}</span>
@@ -675,7 +929,7 @@ const groupedDegreeCourses = {
               <span className="course-action">Action</span>
             </div>
             
-            {registeredCourses.map(course => {
+            {getPaginatedResults().map(course => {
               // Find the original course with full details
               const courseDetails = courses.find(c => c.id === course.id) || {
                 prerequisites: [],
@@ -754,11 +1008,11 @@ const groupedDegreeCourses = {
     )}
 
 {activeTab === 'waitlisted' && (
-  <div className="waitlisted-section">
+  <div className="registered-section">
     <h2>Your Waitlisted Courses</h2>
     
     {waitlistedCourses.length > 0 ? (
-      <div className="waitlisted-courses">
+      <div className="registered-courses">
         <div className="course-header">
           <span className="course-id">Course ID</span>
           <span className="course-name">Course Name</span>
@@ -767,7 +1021,7 @@ const groupedDegreeCourses = {
           <span className="course-action">Action</span>
         </div>
         
-        {waitlistedCourses.map(course => {
+        {getPaginatedResults().map(course => {
           // Find the original course with full details
           const courseDetails = courses.find(c => c.id === course.id) || {
             prerequisites: [],
@@ -848,9 +1102,17 @@ const groupedDegreeCourses = {
   </div>
 )}
       
+      <Pagination
+        totalItems={getCurrentList().length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        initialPage={currentPage}
+      />
+
+
 
       <div className="registration-legend">
-        <h3>Status Legend</h3>
+        <h3 className="registration-heading">Status Legend</h3>
         <div className="legend-items">
           <div className="legend-item">
             <span className="legend-color status-available"></span>
@@ -874,7 +1136,7 @@ const groupedDegreeCourses = {
           </div>
           <div className="legend-item">
             <span className="legend-color status-restricted"></span>
-            <span>Prerequisites not met</span>
+            <span>Full/Prerequisites not met</span>
           </div>
         </div>
       </div>

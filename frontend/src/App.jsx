@@ -4,6 +4,7 @@ import Register from './pages/Register.jsx'
 import Planner from './pages/Plan.jsx'
 import Header from './components/Header.jsx'
 import { CourseProvider } from './data/CourseContext.jsx'
+import ScrollToTop from './components/ScrollTop.jsx'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/plan" element={<Planner />} />
             </Routes>
+            <ScrollToTop />
           </main>
         </div>
       </Router>

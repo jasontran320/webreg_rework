@@ -18,7 +18,7 @@ export default function Home() {
           className="home-button plan-button"
           onClick={() => navigate('/plan')}
         >
-          Plan Courses
+          Course Calender
         </button>
       </div>
     </div>
