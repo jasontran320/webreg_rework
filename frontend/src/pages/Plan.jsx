@@ -418,7 +418,23 @@ if (!updatedBlock.title) {
     setdefaultDay(false)
     
     setShowForm(true)
-    setTimeout(window.scrollTo({ top: 85, behavior: "smooth" }, 50));
+
+    setTimeout(() => {
+    const courseList = document.querySelector(`.${styles['form_container']}`);
+
+    if (courseList) {
+      const offset = 0; // scroll 100px *above* the element
+      const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+      window.scrollTo({
+        top,
+        behavior: 'smooth',
+      });
+    }
+  }, 25);
+
+
+    //setTimeout(window.scrollTo({ top: 85, behavior: "smooth" }, 50));
   }
 
   // Handle form submission
@@ -736,7 +752,19 @@ const parseLocationToCoords = (locationString) => {
           className={`${styles.button} ${showForm ? styles.button_red : styles.button_blue}`}
           onClick={() => {
             setShowForm(!showForm)
-            if (!showForm) {setTimeout(window.scrollTo({ top: 85, behavior: "smooth" }, 50));}
+            if (!showForm) {setTimeout(() => {
+              const courseList = document.querySelector(`.${styles['form_container']}`);
+
+              if (courseList) {
+                const offset = 0; // scroll 100px *above* the element
+                const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+                window.scrollTo({
+                  top,
+                  behavior: 'smooth',
+                });
+              }
+            }, 25);}
           }}
         >
           {showForm ? <X size={16} /> : <Calendar size={16} />}

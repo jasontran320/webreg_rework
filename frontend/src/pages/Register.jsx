@@ -90,12 +90,18 @@ export default function Register() {
           //   top: document.body.scrollHeight,
           //   behavior: "smooth"
           // });
-           setTimeout(() => {
-            window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth"
-          });
-          }, 50); // Adjust delay if needed
+        setTimeout(() => {
+            const courseList = document.querySelector('.course-list');
+            if (courseList) {
+              const offset = 100; // scroll 100px *above* the element
+              const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+              window.scrollTo({
+                top,
+                behavior: 'smooth',
+              });
+            }
+          }, 25);
           // Add your functionality here - e.g., open a modal, navigate to details page
           break;
         case 'registered':
@@ -113,11 +119,17 @@ export default function Register() {
           setSelectedFilter('required');
 
           setTimeout(() => {
-            window.scrollTo({
-              top: 700,
-              behavior: 'smooth',
-            });
-          }, 50); // Adjust delay if needed
+              const courseList = document.querySelector('.course-list');
+              if (courseList) {
+                const offset = 100; // scroll 100px *above* the element
+                const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+                window.scrollTo({
+                  top,
+                  behavior: 'smooth',
+                });
+              }
+            }, 25);
 
           break;
         case 'remaining':
@@ -126,11 +138,17 @@ export default function Register() {
           setSelectedFilter('required');
 
           setTimeout(() => {
-            window.scrollTo({
-              top: 700,
-              behavior: 'smooth',
-            });
-          }, 50); // Adjust delay if needed
+              const courseList = document.querySelector('.course-list');
+              if (courseList) {
+                const offset = 100; // scroll 100px *above* the element
+                const top = courseList.getBoundingClientRect().top + window.scrollY - offset;
+
+                window.scrollTo({
+                  top,
+                  behavior: 'smooth',
+                });
+              }
+            }, 25);
 
           break;
       }
