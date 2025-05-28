@@ -10,4 +10,6 @@
 - frontend/src/pages/Register.jsx - This is the registering courses page
 
 # Demo
-https://youtu.be/zBDWch6BPaw
+https://webreg.netlify.app/
+
+Run 80% zoom for best experience
