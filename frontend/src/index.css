@@ -1136,6 +1136,11 @@ border-left: 4px solid #1abc9c; /* Turquoise - bridges green and blue */
   color: #e67e22;
 }
 
+.status-requires-action2 {
+  color: #e67e22;
+  font-weight: 600;
+}
+
 .status-waitlisted2 {
   background-color: #fff3cd;
   color: #e67e22;

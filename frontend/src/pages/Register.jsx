@@ -285,6 +285,30 @@ const checkPrerequisites = (course) => {
     }
   };
 
+const getStatusClass2 = (course) => {
+  if (course.completed) return 'status-completed';
+
+  switch(course.status) {
+    case 'Available':
+      return 'status-available';
+
+    case 'Waitlisted':
+      return 'status-waitlisted';
+
+    case 'Full':
+      return 'status-full';
+
+    case 'Registered': {
+      if (hasRegisteredCorequisite(course)) return 'status-registered';
+      return 'status-requires-action2'
+    }
+
+    default:
+      return '';
+  }
+};
+
+
   const toggleCourseDetails = (courseId) => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
     setExpandedCourseId2(null);
@@ -748,8 +772,8 @@ useEffect(() => {
                             {course.completed && <span className="completed-badge">Completed</span>}
                           </span>
                           <span className="course-credits">{course.credits}</span>
-                          <span className={`course-status ${getStatusClass(course.status, course.completed)}`}>
-                            {course.completed ? 'Complete': course.status}
+                          <span className={`course-status ${getStatusClass2(course)}`}>
+                            {course.completed ? 'Complete': (course.status === "Registered" ? (hasRegisteredCorequisite(course) ? course.status : "Requires Action"): course.status)}
                           </span>
                           <span className="course-availability">
                             {course.seats - course.enrolled} / {course.seats} seats
@@ -1068,8 +1092,8 @@ useEffect(() => {
                       {course.completed && <span className="completed-badge">Completed</span>}
                     </span>
                     <span className="course-credits">{course.credits}</span>
-                    <span className={`course-status ${getStatusClass(course.status, course.completed)}`}>
-                      {course.completed ? 'Complete': course.status}
+                    <span className={`course-status ${getStatusClass2(course)}`}>
+                      {course.completed ? 'Complete': (course.status === "Registered" ? (hasRegisteredCorequisite(course) ? course.status : "Requires Action"): course.status)}
                     </span>
                     <span className="course-availability">
                       {course.seats - course.enrolled} / {course.seats} seats
