@@ -32,6 +32,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: ["CS101-D1", "CS101-D2"],
+    iscorequisite: false,
     block: {
       id: '1',
       title: 'CS 101',
@@ -63,6 +65,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '2',
       title: 'CS201',
@@ -94,6 +98,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS201'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '3',
       title: 'CS 301',
@@ -125,6 +131,8 @@ const defaultCourses = [
     completed: true,
     department: 'MATH',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '4',
       title: 'MATH 101',
@@ -156,6 +164,8 @@ const defaultCourses = [
     completed: false,
     department: 'MATH',
     prerequisites: ['MATH101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '5',
       title: 'MATH 201',
@@ -188,6 +198,8 @@ const defaultCourses = [
     completed: false,
     department: 'PHYS',
     prerequisites: ['MATH101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '6',
       title: 'PHYS 101',
@@ -219,6 +231,8 @@ const defaultCourses = [
     completed: true,
     department: 'ENG',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '7',
       title: 'ENG 101',
@@ -250,6 +264,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS201', 'CS301'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '8',
       title: 'CS 350',
@@ -281,6 +297,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS201'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '9',
       title: 'CS 450',
@@ -312,6 +330,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '10',
       title: 'CS 215',
@@ -343,6 +363,8 @@ const defaultCourses = [
     completed: true,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '11',
       title: 'CS 122A',
@@ -374,6 +396,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS20'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '12',
       title: 'CS 143A',
@@ -405,6 +429,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '13',
       title: 'CS 161',
@@ -436,6 +462,8 @@ const defaultCourses = [
     completed: true,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '14',
       title: 'CS 178',
@@ -467,6 +495,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS122A'],
+    corequisites: ["CS122B-D1", "CS122B-L"],
+    iscorequisite: false,
     block: {
       id: '15',
       title: 'CS 122B',
@@ -498,6 +528,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '16',
       title: 'CS 132',
@@ -529,6 +561,8 @@ const defaultCourses = [
     completed: true,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '17',
       title: 'CS 125',
@@ -560,6 +594,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS143A'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '18',
       title: 'CS 145',
@@ -591,6 +627,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '19',
       title: 'CS 122C',
@@ -622,6 +660,8 @@ const defaultCourses = [
     completed: true,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '20',
       title: 'CS 131',
@@ -653,6 +693,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['CS301'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '21',
       title: 'CS 112',
@@ -684,6 +726,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '22',
       title: 'CS 134',
@@ -715,6 +759,8 @@ const defaultCourses = [
     completed: false,
     department: 'CS',
     prerequisites: ['ICS31'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '23',
       title: 'CS 121',
@@ -746,6 +792,8 @@ const defaultCourses = [
     completed: false,
     department: 'MATH',
     prerequisites: ['MATH101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '24',
       title: 'MATH 221',
@@ -777,6 +825,8 @@ const defaultCourses = [
     completed: false,
     department: 'PHYS',
     prerequisites: ['PHYS101', 'MATH201', 'MATH333'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '25',
       title: 'PHYS 102',
@@ -808,6 +858,8 @@ const defaultCourses = [
     completed: false,
     department: 'ENG',
     prerequisites: ['ENG101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '26',
       title: 'ENG 201',
@@ -839,6 +891,8 @@ const defaultCourses = [
     completed: false,
     department: 'BIO',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '27',
       title: 'BIO 101',
@@ -870,6 +924,8 @@ const defaultCourses = [
     completed: false,
     department: 'PSYCH',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '28',
       title: 'PSYCH 101',
@@ -901,6 +957,8 @@ const defaultCourses = [
     completed: false,
     department: 'PHIL',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '29',
       title: 'PHIL 101',
@@ -932,6 +990,8 @@ const defaultCourses = [
     completed: false,
     department: 'ECON',
     prerequisites: [],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '30',
       title: 'ECON 101',
@@ -963,6 +1023,8 @@ const defaultCourses = [
     completed: false,
     department: 'ENG',
     prerequisites: ['ENG101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '31',
       title: 'ENG 202',
@@ -994,6 +1056,8 @@ const defaultCourses = [
     completed: false,
     department: 'MATH',
     prerequisites: ['MATH201', 'MATH333'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '32',
       title: 'MATH 130A',
@@ -1025,6 +1089,8 @@ const defaultCourses = [
     completed: false,
     department: 'ENG',
     prerequisites: ['ENG101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '33',
       title: 'ENG 203',
@@ -1056,6 +1122,8 @@ const defaultCourses = [
     completed: false,
     department: 'MATH',
     prerequisites: ['MATH101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '34',
       title: 'MATH 105',
@@ -1087,6 +1155,8 @@ const defaultCourses = [
     completed: false,
     department: 'ENG',
     prerequisites: ['ENG101'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '35',
       title: 'ENG 204',
@@ -1118,6 +1188,8 @@ const defaultCourses = [
     completed: false,
     department: 'MATH',
     prerequisites: ['MATH221'],
+    corequisites: [],
+    iscorequisite: false,
     block: {
       id: '36',
       title: 'MATH 221 Discussion',
@@ -1137,6 +1209,146 @@ const defaultCourses = [
     location: "RH 100",
     description: "Delve into calculus on a much larger scale"
   },
+
+  {
+    id: 'CS101-D1',
+    name: 'Intro to Computer Science Discussion 1',
+    credits: 0,
+    status: 'Available',
+    seats: 15,
+    enrolled: 10,
+    waitlist: 0,
+    required: true,
+    completed: false,
+    department: 'CS',
+    prerequisites: ['CS101'],
+    corequisites: [],
+    iscorequisite: true,
+    block: {
+      id: '37',
+      title: 'CS 101 Discussion 1',
+      day: 'thursday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'green',
+      description: "Discussion Section 1",
+      location: "HIB 100", 
+      locationCoords:{
+        "lat": 33.64834506581709,
+        "lng": -117.84352898597719,
+        "address": "HIB 100",
+        "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+    }
+    },
+    location: "HIB 100",
+    description: "Discussion Section 1"
+  },
+  {
+    id: 'CS101-D2',
+    name: 'Intro to Computer Science Discussion 2',
+    credits: 0,
+    status: 'Available',
+    seats: 15,
+    enrolled: 10,
+    waitlist: 0,
+    required: true,
+    completed: false,
+    department: 'CS',
+    prerequisites: ['CS101'],
+    corequisites: [],
+    iscorequisite: true,
+    block: {
+      id: '38',
+      title: 'CS 101 Discussion 2',
+      day: 'friday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'red',
+      description: "Discussion Section 2",
+      location: "HIB 100", 
+      locationCoords:{
+        "lat": 33.64834506581709,
+        "lng": -117.84352898597719,
+        "address": "HIB 100",
+        "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+    }
+    },
+    location: "HIB 100",
+    description: "Discussion Section 2"
+  },
+
+
+  {
+    id: 'CS122B-L',
+    name: '122B Projects Lab',
+    credits: 2,
+    status: 'Available',
+    seats: 15,
+    enrolled: 10,
+    waitlist: 0,
+    required: true,
+    completed: false,
+    department: 'CS',
+    prerequisites: ['CS122B'],
+    corequisites: [],
+    iscorequisite: true,
+    block: {
+      id: '39',
+      title: 'CS 122B Projects Lab',
+      day: 'monday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'blue',
+      description: "Project-based course on full-stack development, focusing on databases and web technologies.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+    location: "ICS 121",
+    description: "Project-based course on full-stack development, focusing on databases and web technologies."
+  },
+
+
+  {
+    id: 'CS122B-D1',
+    name: 'CS 122B discussion section 1',
+    credits: 0,
+    status: 'Available',
+    seats: 15,
+    enrolled: 10,
+    waitlist: 0,
+    required: true,
+    completed: false,
+    department: 'CS',
+    prerequisites: ['CS122B'],
+    corequisites: [],
+    iscorequisite: true,
+    block: {
+      id: '40',
+      title: 'CS 122B discussion section 1',
+      day: 'tuesday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'blue',
+      description: "Discussion Section for 122B.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+    location: "ICS 121",
+    description: "Discussion Section for 122B."
+  },
+
+
+
 ];
 
 
@@ -1208,6 +1420,12 @@ const defaultBlocks = [
   //   },
 ];
 
+const defaultCorequisites = [
+
+];
+
+
+
 // Option 1: Sort by course ID (alphabetical)
 const sortedDefaultCourses = [...defaultCourses].sort((a, b) => a.id.localeCompare(b.id));
 
@@ -1232,6 +1450,7 @@ export const CourseProvider = ({ children }) => {
     localStorage.removeItem('registeredCourses');
     localStorage.removeItem('waitlistedCourses');
     localStorage.removeItem('blocks');
+    localStorage.removeItem('corequisiteCourses');
   };
   
   // Check for app relaunch and reset if needed
@@ -1256,6 +1475,11 @@ export const CourseProvider = ({ children }) => {
   const [courses, setCourses] = useState(() => 
     getLocalStorageData('courses', sortedDefaultCourses) // Use sorted version
   );
+
+  const [corequisiteCourses, setCorequisiteCourses] = useState(() =>
+  getLocalStorageData('corequisiteCourses', defaultCorequisites)
+);
+
   
   const [registeredCourses, setRegisteredCourses] = useState(() => 
     getLocalStorageData('registeredCourses', defaultRegisteredCourses)
@@ -1275,6 +1499,11 @@ export const CourseProvider = ({ children }) => {
   }, [courses]);
 
   useEffect(() => {
+  localStorage.setItem('corequisiteCourses', JSON.stringify(corequisiteCourses));
+}, [corequisiteCourses]);
+
+
+  useEffect(() => {
     localStorage.setItem('registeredCourses', JSON.stringify(registeredCourses));
   }, [registeredCourses]);
 
@@ -1292,6 +1521,7 @@ export const CourseProvider = ({ children }) => {
     setRegisteredCourses(defaultRegisteredCourses);
     setWaitlistedCourses(defaultWaitlistedCourses);
     setBlocks(defaultBlocks);
+    setCorequisiteCourses(defaultCorequisites); 
   };
 
   // Calculate active blocks
@@ -1314,6 +1544,8 @@ export const CourseProvider = ({ children }) => {
     waitlistedCourses, 
     setWaitlistedCourses, 
     activeBlocks,
+    corequisiteCourses, // add this
+    setCorequisiteCourses, // and this
     resetToDefaults // Exposing the reset function to consumers
   };
 

@@ -485,7 +485,7 @@ if (!updatedBlock.title) {
     
     const id = (
       Math.max(
-        36, // So first ID will be 37
+        100, // So first ID will be 101
         ...blocks
           .map(block => parseInt(block.id, 10))
           .filter(id => !isNaN(id))

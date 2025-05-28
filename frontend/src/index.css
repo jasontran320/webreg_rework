@@ -354,9 +354,24 @@ h3 {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.course-header2 {
+  background-color: #f7fafc;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+
 .registered-courses .course-header {
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+}
+
+.registered-courses .course-header2 {
   grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr;
 }
+
 
 .course-item {
   padding: 16px;
@@ -367,15 +382,121 @@ h3 {
   transition: background-color 0.2s ease;
 }
 
+.course-item2 {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.course-item2.required {
+  background-color: #fff3cd;
+}
+
+.course-item2.required:hover {
+  background-color: #fff8dc; /* Cornsilk */
+}
+
+.course-details.required {
+  border-left: 4px solid #ffc107;
+  
+}
+
+.waitlist-info2 {
+  margin: 15px 0;
+  padding-left: 0px;
+  background-color: #fff8e1;
+  border-left: 4px solid #ffc107;
+  border-radius: 3px;
+}
+
+.waitlist-info3 {
+  margin: 15px 0;
+  padding-left: 0px;
+background-color: #f0f7fc; /* very light blue tint */
+  border-left: 4px solid #3498db;
+  border-radius: 3px;
+}
+
+.waitlist-info4 {
+  margin: 15px 0;
+  padding-left: 0px;
+  background-color: #f8fdfb; /* Match .requirement-details */
+  border-left: 4px solid #2ecc71; /* Consistent green border */
+  border-radius: 3px;
+}
+
+.course-header4 {
+  background-color: #f8fdfb; /* Soft mint green */
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+  font-weight: 600;
+  border-bottom: 1px solid #c8e6d8; /* Slight green tone border */
+}
+
+.course-details4 {
+  padding: 15px;
+  background-color: #e8f9f1; /* Match .requirement-details e8f9f1*/
+  border-left: 4px solid #2ecc71; /* Consistent green border */
+  margin: 0 10px 10px 15px;
+  border-radius: 0 0 4px 4px;
+  animation: slideDown 0.3s ease-out;
+}
+.waitlist-info2 .course-header {
+  background-color: #f4c27a; /* terracotta-ish */
+  color: #422700;
+}
+
+.waitlist-info2 .course-item:hover {
+  background-color: #ffedb3;
+
+}
+
+.course-details3 {
+  padding: 15px;
+  background-color: #deeff8; /* soft pale blue */
+  border-left: 4px solid #3498db; /* same as .course-details for unity */
+  margin: 0 10px 10px 15px;
+  border-radius: 0 0 4px 4px;
+  animation: slideDown 0.3s ease-out;
+}
+
+
+.waitlist-info2 .course-details3 {
+  background-color: #fce9b5;
+  border-left: 4px solid #f4c27a;
+}
+
+
+
+
+
+
 .registered-courses .course-item {
+  grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
+}
+
+.registered-courses .course-header2 {
   grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr;
 }
+
 
 .course-item:hover {
   background-color: #f8fafc;
 }
 
 .course-item:last-child {
+  border-bottom: none;
+}
+
+.course-item2:hover {
+  background-color: #f8fafc;
+}
+
+.course-item2:last-child {
   border-bottom: none;
 }
 
@@ -394,6 +515,19 @@ h3 {
   margin-top: 5px;
   width: fit-content;
 }
+
+.action-required-badge {
+  display: inline-block;
+background-color: #e67e22; /* vibrant, urgent but distinct from red */
+
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  width: fit-content;
+}
+
 
 .completed-badge {
   display: inline-block;
@@ -845,6 +979,44 @@ border-left: 4px solid #1abc9c; /* Turquoise - bridges green and blue */
   font-size: 0.8rem;
 }
 
+
+
+
+
+
+.course-item2 {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.course-item2:hover {
+  background-color: #f5f9fc;
+}
+
+/* Expandable Course Items Styling */
+.course-item2 {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.course-item2:hover {
+  background-color: #f5f9fc;
+}
+
+.course-item2:after {
+  content: '\25BE'; /* Down arrow character */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+
+
+
 /* Course Details Styling */
 .course-details {
   padding: 15px;
@@ -946,7 +1118,7 @@ border-left: 4px solid #1abc9c; /* Turquoise - bridges green and blue */
   border-radius: 3px;
 }
 
-.status-registered2, .status-waitlisted2 {
+.status-registered2, .status-waitlisted2, .status-requires-action {
   display: inline-block;
   padding: 3px 8px;
   border-radius: 3px;
@@ -957,6 +1129,11 @@ border-left: 4px solid #1abc9c; /* Turquoise - bridges green and blue */
 .status-registered2 {
   background-color: #e7f4fd;
   color: #3498db;
+}
+
+.status-requires-action {
+  background-color: #fff3cd;
+  color: #e67e22;
 }
 
 .status-waitlisted2 {

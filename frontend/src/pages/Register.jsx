@@ -25,7 +25,7 @@ export default function Register() {
   };
 
   // Enhanced mock data with prerequisites and departments
-  const { courses, setCourses, registeredCourses, setRegisteredCourses, waitlistedCourses, setWaitlistedCourses, blocks, setBlocks } = useContext(CourseContext)
+  const { courses, setCourses, registeredCourses, setRegisteredCourses, waitlistedCourses, setWaitlistedCourses, blocks, setBlocks, corequisiteCourses, setCorequisiteCourses } = useContext(CourseContext)
   const checkOverlap = (newBlock) => {
   const overlappingBlocks = blocks.filter(block => {
     if (block.day !== newBlock.day) return false;
@@ -44,6 +44,7 @@ export default function Register() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [expandedCourseId, setExpandedCourseId] = useState(null);
+  const [expandedCourseId2, setExpandedCourseId2] = useState(null);
   const [selectedDept, setSelectedDept] = useState(null);
   const [selectedReq, setSelectedReq] = useState(null);
 
@@ -162,29 +163,52 @@ export default function Register() {
     remainingRequired: 120 - 35 - registeredCourses.reduce((sum, course) => sum + course.credits, 0),
   };
 
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         course.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = selectedDepartment === 'all' || course.department === selectedDepartment;
-    
-    if (selectedFilter === 'all') return matchesSearch && matchesDepartment;
-    if (selectedFilter === 'available') return matchesSearch && course.status === 'Available' && matchesDepartment && !course.completed;
-    if (selectedFilter === 'required') return matchesSearch && course.required && matchesDepartment;
-    if (selectedFilter === 'completed') return matchesSearch && course.completed && matchesDepartment;
-    
+const filteredCourses = courses.filter(course => {
+  // Exclude corequisites
+  if (course.iscorequisite) return false;
+  const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        course.id.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesDepartment = selectedDepartment === 'all' || course.department === selectedDepartment;
+  if (selectedFilter === 'all') {
     return matchesSearch && matchesDepartment;
-  });
+  }
+  if (selectedFilter === 'available') {
+    return matchesSearch && course.status === 'Available' && matchesDepartment && !course.completed;
+  }
+  if (selectedFilter === 'required') {
+    return matchesSearch && course.required && matchesDepartment;
+  }
+  if (selectedFilter === 'completed') {
+    return matchesSearch && course.completed && matchesDepartment;
+  }
+  return matchesSearch && matchesDepartment;
+});
+
 
 const requiredDepartments = ['CS', 'MATH', 'ENG'];
 
 const groupedDegreeCourses = {
-  CS: courses.filter(course => course.required && course.department === 'CS'),
-  MATH: courses.filter(course => course.required && course.department === 'MATH'),
-  ENG: courses.filter(course => course.required && course.department === 'ENG'),
+  CS: courses.filter(course => 
+    course.required && 
+    course.department === 'CS' && 
+    !course.iscorequisite // Exclude corequisite-only courses
+  ),
+  MATH: courses.filter(course => 
+    course.required && 
+    course.department === 'MATH' && 
+    !course.iscorequisite // Exclude corequisite-only courses
+  ),
+  ENG: courses.filter(course => 
+    course.required && 
+    course.department === 'ENG' && 
+    !course.iscorequisite // Exclude corequisite-only courses
+  ),
   Electives: courses.filter(course => 
-    !requiredDepartments.includes(course.department)
+    !requiredDepartments.includes(course.department) && 
+    !course.iscorequisite // Exclude corequisite-only courses
   )
 };
+
 
 
 
@@ -215,14 +239,40 @@ const groupedDegreeCourses = {
     ));
   };
 
-  const checkPrerequisites = (course) => {
-    if (!course.prerequisites || course.prerequisites.length === 0) return true;
-    if (course.status === 'Full') return false;
-    // Only check if prerequisites are completed
-    return course.prerequisites.every(prereqId => 
-      courses.find(c => c.id === prereqId && c.completed)
-    );
-  };
+const checkPrerequisites = (course) => {
+  if (!course.prerequisites || course.prerequisites.length === 0) return true;
+  if (course.status === 'Full') return false;
+
+  if (course.iscorequisite && course.prerequisites.length === 1) {
+    const parentId = course.prerequisites[0];
+    const parentCourse = registeredCourses.find(c => c.id === parentId);
+    
+    if (parentCourse && hasRegisteredCorequisite(parentCourse, registeredCourses)) {
+      return false;
+    }
+  }
+
+
+  return course.prerequisites.every(prereqId => {
+    const prereqCourse = courses.find(c => c.id === prereqId);
+    if (!prereqCourse) return false;
+
+    // If the prereq course was completed, we're good.
+    if (prereqCourse.completed) return true;
+
+    // If the course is marked as a corequisite, check if the prereq is currently registered.
+    if (course.iscorequisite) {
+      return registeredCourses.some(rc => rc.id === prereqId);
+    }
+
+    // Otherwise, prereq must be completed (already handled), so fail here.
+    return false;
+  });
+};
+
+
+
+
 
   const getStatusClass = (status, completed) => {
     if (completed) return 'status-completed'
@@ -237,7 +287,13 @@ const groupedDegreeCourses = {
 
   const toggleCourseDetails = (courseId) => {
     setExpandedCourseId(expandedCourseId === courseId ? null : courseId);
+    setExpandedCourseId2(null);
   };
+  
+   const toggleCourseDetails2 = (courseId) => {
+    setExpandedCourseId2(expandedCourseId2 === courseId ? null : courseId);
+  };
+  
 
 
 
@@ -441,7 +497,9 @@ const handleRegister = useCallback((course) => {
         block: course.block,
         location: course.location,
         description: course.description,
-        prerequisites: course.prerequisites
+        prerequisites: course.prerequisites,
+        corequisites: course.corequisites,
+        iscorequisite: course.iscorequisite
       };
 
       // Batch all state updates together
@@ -455,6 +513,7 @@ const handleRegister = useCallback((course) => {
 
       setBlocks(prevBlocks => [...prevBlocks, course.block]);
       setRegisteredCourses(prev => [...prev, newRegisteredCourse]);
+      if (course.corequisites.length > 0) window.alert(`Successfully registered for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses to not be dropped.`);
 
     } else if ((course.status === 'Waitlisted') && 
               !waitlistedCourses.some(c => c.id === course.id)) {
@@ -484,6 +543,7 @@ const handleRegister = useCallback((course) => {
 
       setBlocks(prevBlocks => [...prevBlocks, course.block]);
       setWaitlistedCourses(prev => [...prev, newWaitlistedCourse]);
+      if (course.corequisites.length > 0) window.alert(`Successfully waitlisted for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses if you get registered!`);
     }
   } catch (error) {
     console.error('Error registering for course:', error);
@@ -503,6 +563,20 @@ const handleRegister = useCallback((course) => {
 
 const [sortBy, setSortBy] = useState('department-asc');
 
+
+function hasRegisteredCorequisite(course) {
+  if (!course.corequisites || course.corequisites.length === 0) {
+    return true;
+  }
+
+  return course.corequisites.some(coreqId =>
+    registeredCourses.some(registered => registered.id === coreqId)
+  );
+}
+
+
+
+
 const sortOptions = [
   { value: 'alphabetical-asc', label: 'Course Name (A-Z)' },
   { value: 'alphabetical-desc', label: 'Course Name (Z-A)' },
@@ -521,6 +595,7 @@ const sortOptions = [
 // Add this function to handle page changes
 const handlePageChange = (page) => {
   setCurrentPage(page);
+  console.log(corequisiteCourses)
   
   setTimeout(() => {
     const courseList = document.querySelector('.course-list');
@@ -724,6 +799,127 @@ useEffect(() => {
                                   );
                                 })}
                               </div>
+
+
+
+
+
+
+
+
+
+
+                        <p><strong>{course.corequisites?.length > 0 ? "Corequisites for this class:" : ""}</strong></p>
+                        {course.corequisites?.length > 0 &&(
+                        <div className={"waitlist-info4" }>
+                          <div className="course-header4">
+                              <span className="course-id">Course ID</span>
+                              <span className="course-name">Course Name</span>
+                              <span className="course-credits">Credits</span>
+                              <span className="course-status">Status</span>
+                              <span className="course-availability">Availability</span>
+                              <span className="course-action">Action</span>
+                            </div>
+                            {
+                              course.corequisites.map(coreqId => {
+                                const coreqCourse = courses.find(c => c.id === coreqId);
+                                const isCompleted = coreqCourse?.completed;
+                                const isRegistered = registeredCourses.some(c => c.id === coreqId);
+
+                                return (
+                                  
+
+
+
+                                <React.Fragment key={coreqCourse.id}>
+
+                                  <div className="course-item" onClick={() => toggleCourseDetails2(coreqCourse.id)}>
+                                    <span className="course-id">{coreqCourse.id}</span>
+                                    <span className="course-name">
+                                      {coreqCourse.name}
+                                      {coreqCourse.required && <span className="required-badge">Required</span>}
+                                      {coreqCourse.completed && <span className="completed-badge">Completed</span>}
+                                    </span>
+                                    <span className="course-credits">{coreqCourse.credits}</span>
+                                    <span className={`course-status ${getStatusClass(coreqCourse.status, coreqCourse.completed)}`}>
+                                      {coreqCourse.completed ? 'Complete': coreqCourse.status}
+                                    </span>
+                                    <span className="course-availability">
+                                      {coreqCourse.seats - coreqCourse.enrolled} / {coreqCourse.seats} seats
+                                      {coreqCourse.waitlist > 0 && <span> (Waitlist: {coreqCourse.waitlist})</span>}
+                                    </span>
+                                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                                      {coreqCourse.completed ? (
+                                        <button disabled className="button-disabled">Completed</button>
+                                      ) : registeredCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">Registered</button>
+                                      ) : waitlistedCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">On Waitlist</button>
+                                      ) : (
+                                        <button 
+                                          onClick={() => handleRegister(coreqCourse)}
+                                          className={checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                                          disabled={!checkPrerequisites(coreqCourse)}
+                                          title={!checkPrerequisites(coreqCourse) ? "Prerequisites not met" : ""}
+                                        >
+                                          {checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                                        </button>
+                                      )}
+                                    </span>
+                                  </div>
+                                  
+                                  {expandedCourseId2 === coreqCourse.id && (
+                                    <div className="course-details4">
+                                      <div className="details-section">
+                                        <h4>Course Details</h4>
+                                        <p>{coreqCourse.description}</p>
+                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
+                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        <p><strong>Location:</strong> {coreqCourse.location}</p>
+                                        <p><strong>Department:</strong> {coreqCourse.department}</p>
+                                        <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
+                                          coreqCourse.prerequisites.join(', ') : 'None'}
+                                        </p>
+                                        <div className="prerequisite-status">
+                                          {coreqCourse.prerequisites.map(prereq => {
+                                            const prereqCourse = courses.find(c => c.id === prereq);
+                                            const isCompleted = prereqCourse && prereqCourse.completed;
+                                            const isRegistered = registeredCourses.some(c => c.id === prereq);
+                                            return (
+                                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+
+                                        
+                                      </div>
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                                );
+                              })}
+                        </div>)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                              
                             </div>
                           </div>
                         )}
@@ -923,6 +1119,134 @@ useEffect(() => {
                             );
                           })}
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        <p><strong>{course.corequisites?.length > 0 ? "Corequisites for this class:" : ""}</strong></p>
+                        {course.corequisites?.length > 0 &&(
+                        <div className={"waitlist-info3" }>
+                          <div className="course-header">
+                              <span className="course-id">Course ID</span>
+                              <span className="course-name">Course Name</span>
+                              <span className="course-credits">Credits</span>
+                              <span className="course-status">Status</span>
+                              <span className="course-availability">Availability</span>
+                              <span className="course-action">Action</span>
+                            </div>
+                            {
+                              course.corequisites.map(coreqId => {
+                                const coreqCourse = courses.find(c => c.id === coreqId);
+                                const isCompleted = coreqCourse?.completed;
+                                const isRegistered = registeredCourses.some(c => c.id === coreqId);
+
+                                return (
+                                  
+
+
+
+                                <React.Fragment key={coreqCourse.id}>
+
+                                  <div className="course-item" onClick={() => toggleCourseDetails2(coreqCourse.id)}>
+                                    <span className="course-id">{coreqCourse.id}</span>
+                                    <span className="course-name">
+                                      {coreqCourse.name}
+                                      {coreqCourse.required && <span className="required-badge">Required</span>}
+                                      {coreqCourse.completed && <span className="completed-badge">Completed</span>}
+                                    </span>
+                                    <span className="course-credits">{coreqCourse.credits}</span>
+                                    <span className={`course-status ${getStatusClass(coreqCourse.status, coreqCourse.completed)}`}>
+                                      {coreqCourse.completed ? 'Complete': coreqCourse.status}
+                                    </span>
+                                    <span className="course-availability">
+                                      {coreqCourse.seats - coreqCourse.enrolled} / {coreqCourse.seats} seats
+                                      {coreqCourse.waitlist > 0 && <span> (Waitlist: {coreqCourse.waitlist})</span>}
+                                    </span>
+                                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                                      {coreqCourse.completed ? (
+                                        <button disabled className="button-disabled">Completed</button>
+                                      ) : registeredCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">Registered</button>
+                                      ) : waitlistedCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">On Waitlist</button>
+                                      ) : (
+                                        <button 
+                                          onClick={() => handleRegister(coreqCourse)}
+                                          className={checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                                          disabled={!checkPrerequisites(coreqCourse)}
+                                          title={!checkPrerequisites(coreqCourse) ? "Prerequisites not met" : ""}
+                                        >
+                                          {checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                                        </button>
+                                      )}
+                                    </span>
+                                  </div>
+                                  
+                                  {expandedCourseId2 === coreqCourse.id && (
+                                    <div className="course-details3">
+                                      <div className="details-section">
+                                        <h4>Course Details</h4>
+                                        <p>{coreqCourse.description}</p>
+                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
+                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        <p><strong>Location:</strong> {coreqCourse.location}</p>
+                                        <p><strong>Department:</strong> {coreqCourse.department}</p>
+                                        <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
+                                          coreqCourse.prerequisites.join(', ') : 'None'}
+                                        </p>
+                                        <div className="prerequisite-status">
+                                          {coreqCourse.prerequisites.map(prereq => {
+                                            const prereqCourse = courses.find(c => c.id === prereq);
+                                            const isCompleted = prereqCourse && prereqCourse.completed;
+                                            const isRegistered = registeredCourses.some(c => c.id === prereq);
+                                            return (
+                                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+
+                                        
+                                      </div>
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                                );
+                              })}
+                        </div>)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                       </div>
                     </div>
                   )}
@@ -940,7 +1264,7 @@ useEffect(() => {
         
         {registeredCourses.length > 0 ? (
           <div className="registered-courses">
-            <div className="course-header">
+            <div className="course-header2">
               <span className="course-id">Course ID</span>
               <span className="course-name">Course Name</span>
               <span className="course-credits">Credits</span>
@@ -952,17 +1276,27 @@ useEffect(() => {
               // Find the original course with full details
               const courseDetails = courses.find(c => c.id === course.id) || {
                 prerequisites: [],
+                corequisites: [],
                 department: course.department || 'Unknown'
               };
               
               return (
                 <React.Fragment key={course.id}>
+
                   <div 
-                    className="course-item" 
+                    className={hasRegisteredCorequisite(course) ? "course-item2" : "course-item2 required" }
                     onClick={() => toggleCourseDetails(`registered-${course.id}`)}
                   >
                     <span className="course-id">{course.id}</span>
-                    <span className="course-name">{course.name}</span>
+                    <span className="course-name">
+                      {course.name}
+                      {
+                        !hasRegisteredCorequisite(course) &&
+                        <span className="action-required-badge">Action Required</span>
+                        }
+                      {//course.completed && <span className="completed-badge">Completed</span>
+                      }
+                    </span>
                     <span className="course-credits">{course.credits}</span>
                     <span className="course-section">{course.section}</span>
                     <span className="course-action" onClick={(e) => e.stopPropagation()}>
@@ -973,7 +1307,7 @@ useEffect(() => {
                   </div>
                   
                   {expandedCourseId === `registered-${course.id}` && (
-                    <div className="course-details">
+                    <div className={hasRegisteredCorequisite(course) ? "course-details" : "course-details required" }>
                       <div className="details-section">
                         <h4>Course Details</h4>
                         <p>{course.description}</p>
@@ -982,11 +1316,13 @@ useEffect(() => {
                         <p><strong>Location:</strong> {course.location}</p>
                         <p><strong>Department:</strong> {courseDetails.department}</p>
                         <p><strong>Section:</strong> {course.section}</p>
-                        <p><strong>Status:</strong> <span className="status-registered2">Registered</span></p>
+                        <p><strong>Status:</strong> <span className={hasRegisteredCorequisite(course) ? "status-registered2" : "status-requires-action" }>{hasRegisteredCorequisite(course) ? "Registered" : "Requires Action" }</span></p>
+                        
+
                         
                         {courseDetails.prerequisites && courseDetails.prerequisites.length > 0 && (
                           <>
-                            <p><strong>Prerequisites:</strong> {courseDetails.prerequisites.join(', ')}</p>
+                            <p><strong>{course.iscorequisite ? "Corequisites" : "Prerequisites"}:</strong> {courseDetails.prerequisites.join(', ')}</p>
                             <div className="prerequisite-status">
                               {courseDetails.prerequisites.map(prereq => {
                                 const prereqCourse = courses.find(c => c.id === prereq);
@@ -1008,12 +1344,174 @@ useEffect(() => {
                             <button onClick={() => navigate('/plan')} className="button-secondary">View Schedule</button>
                           </div>
                         </div>
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  
+                        <p><strong>{courseDetails.corequisites?.length > 0 ? "Enroll in corequisites:" : ""}</strong></p>
+                        {courseDetails.corequisites?.length > 0 &&(
+                        <div className={hasRegisteredCorequisite(course) ? "waitlist-info3" : "waitlist-info2" }>
+                          <div className="course-header">
+                              <span className="course-id">Course ID</span>
+                              <span className="course-name">Course Name</span>
+                              <span className="course-credits">Credits</span>
+                              <span className="course-status">Status</span>
+                              <span className="course-availability">Availability</span>
+                              <span className="course-action">Action</span>
+                            </div>
+                            {
+                              courseDetails.corequisites.map(coreqId => {
+                                const coreqCourse = courses.find(c => c.id === coreqId);
+                                const isCompleted = coreqCourse?.completed;
+                                const isRegistered = registeredCourses.some(c => c.id === coreqId);
+
+                                return (
+                                  
+
+
+
+                                <React.Fragment key={coreqCourse.id}>
+
+                                  <div className="course-item" onClick={() => toggleCourseDetails2(coreqCourse.id)}>
+                                    <span className="course-id">{coreqCourse.id}</span>
+                                    <span className="course-name">
+                                      {coreqCourse.name}
+                                      {coreqCourse.required && <span className="required-badge">Required</span>}
+                                      {coreqCourse.completed && <span className="completed-badge">Completed</span>}
+                                    </span>
+                                    <span className="course-credits">{coreqCourse.credits}</span>
+                                    <span className={`course-status ${getStatusClass(coreqCourse.status, coreqCourse.completed)}`}>
+                                      {coreqCourse.completed ? 'Complete': coreqCourse.status}
+                                    </span>
+                                    <span className="course-availability">
+                                      {coreqCourse.seats - coreqCourse.enrolled} / {coreqCourse.seats} seats
+                                      {coreqCourse.waitlist > 0 && <span> (Waitlist: {coreqCourse.waitlist})</span>}
+                                    </span>
+                                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                                      {coreqCourse.completed ? (
+                                        <button disabled className="button-disabled">Completed</button>
+                                      ) : registeredCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">Registered</button>
+                                      ) : waitlistedCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">On Waitlist</button>
+                                      ) : (
+                                        <button 
+                                          onClick={() => handleRegister(coreqCourse)}
+                                          className={checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                                          disabled={!checkPrerequisites(coreqCourse)}
+                                          title={!checkPrerequisites(coreqCourse) ? "Prerequisites not met" : ""}
+                                        >
+                                          {checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                                        </button>
+                                      )}
+                                    </span>
+                                  </div>
+                                  
+                                  {expandedCourseId2 === coreqCourse.id && (
+                                    <div className="course-details3">
+                                      <div className="details-section">
+                                        <h4>Course Details</h4>
+                                        <p>{coreqCourse.description}</p>
+                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
+                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        <p><strong>Location:</strong> {coreqCourse.location}</p>
+                                        <p><strong>Department:</strong> {coreqCourse.department}</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                                );
+                              })}
+                        </div>)}
                       </div>
                     </div>
                   )}
                 </React.Fragment>
               );
             })}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             
             <div className="course-summary">
               <span>Total Courses: {registeredCourses.length}</span>
@@ -1108,6 +1606,130 @@ useEffect(() => {
                         <button onClick={() => navigate('/plan')} className="button-secondary">View Schedule</button>
                       </div>
                     </div>
+
+                    
+
+
+
+
+
+                      <p><strong>{courseDetails.corequisites?.length > 0 ? "Corequisites for this class:" : ""}</strong></p>
+                        {courseDetails.corequisites?.length > 0 &&(
+                        <div className={"waitlist-info3" }>
+                          <div className="course-header">
+                              <span className="course-id">Course ID</span>
+                              <span className="course-name">Course Name</span>
+                              <span className="course-credits">Credits</span>
+                              <span className="course-status">Status</span>
+                              <span className="course-availability">Availability</span>
+                              <span className="course-action">Action</span>
+                            </div>
+                            {
+                              courseDetails.corequisites.map(coreqId => {
+                                const coreqCourse = courses.find(c => c.id === coreqId);
+                                const isCompleted = coreqCourse?.completed;
+                                const isRegistered = registeredCourses.some(c => c.id === coreqId);
+
+                                return (
+                                  
+
+
+
+                                <React.Fragment key={coreqCourse.id}>
+
+                                  <div className="course-item" onClick={() => toggleCourseDetails2(coreqCourse.id)}>
+                                    <span className="course-id">{coreqCourse.id}</span>
+                                    <span className="course-name">
+                                      {coreqCourse.name}
+                                      {coreqCourse.required && <span className="required-badge">Required</span>}
+                                      {coreqCourse.completed && <span className="completed-badge">Completed</span>}
+                                    </span>
+                                    <span className="course-credits">{coreqCourse.credits}</span>
+                                    <span className={`course-status ${getStatusClass(coreqCourse.status, coreqCourse.completed)}`}>
+                                      {coreqCourse.completed ? 'Complete': coreqCourse.status}
+                                    </span>
+                                    <span className="course-availability">
+                                      {coreqCourse.seats - coreqCourse.enrolled} / {coreqCourse.seats} seats
+                                      {coreqCourse.waitlist > 0 && <span> (Waitlist: {coreqCourse.waitlist})</span>}
+                                    </span>
+                                    <span className="course-action" onClick={(e) => e.stopPropagation()}>
+                                      {coreqCourse.completed ? (
+                                        <button disabled className="button-disabled">Completed</button>
+                                      ) : registeredCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">Registered</button>
+                                      ) : waitlistedCourses.some(c => c.id === coreqCourse.id) ? (
+                                        <button disabled className="button-disabled">On Waitlist</button>
+                                      ) : (
+                                        <button 
+                                          onClick={() => handleRegister(coreqCourse)}
+                                          className={checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'button-register' : 'button-waitlist'): 'button-restricted'}
+                                          disabled={!checkPrerequisites(coreqCourse)}
+                                          title={!checkPrerequisites(coreqCourse) ? "Prerequisites not met" : ""}
+                                        >
+                                          {checkPrerequisites(coreqCourse) ? (coreqCourse.status === 'Available' ? 'Register' : 'Join Waitlist') : 'Restricted'}
+                                        </button>
+                                      )}
+                                    </span>
+                                  </div>
+                                  
+                                  {expandedCourseId2 === coreqCourse.id && (
+                                    <div className="course-details3">
+                                      <div className="details-section">
+                                        <h4>Course Details</h4>
+                                        <p>{coreqCourse.description}</p>
+                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
+                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        <p><strong>Location:</strong> {coreqCourse.location}</p>
+                                        <p><strong>Department:</strong> {coreqCourse.department}</p>
+                                        <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
+                                          coreqCourse.prerequisites.join(', ') : 'None'}
+                                        </p>
+                                        <div className="prerequisite-status">
+                                          {coreqCourse.prerequisites.map(prereq => {
+                                            const prereqCourse = courses.find(c => c.id === prereq);
+                                            const isCompleted = prereqCourse && prereqCourse.completed;
+                                            const isRegistered = registeredCourses.some(c => c.id === prereq);
+                                            return (
+                                              <div key={prereq} className={`prereq-item ${isCompleted ? 'completed' : isRegistered ? 'registered' : 'missing'}`}>
+                                                {prereq}: {isCompleted ? 'Completed' : isRegistered ? 'Currently Registered' : 'Not Completed'}
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+
+                                        
+                                      </div>
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                                );
+                              })}
+                        </div>)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   </div>
                 </div>
               )}
