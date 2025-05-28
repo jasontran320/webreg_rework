@@ -1115,7 +1115,12 @@ useEffect(() => {
             </React.Fragment>
           );
         })}
+        <div className="course-summary">
+          <span>Total Courses: {waitlistedCourses.length}</span>
+          <span>Total Credits: {waitlistedCourses.reduce((sum, course) => sum + course.credits, 0)}</span>
+        </div>
       </div>
+      
     ) : (
       <div className="no-results">You aren't on any waitlists</div>
     )}
