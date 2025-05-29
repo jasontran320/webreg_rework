@@ -110,9 +110,8 @@
 }
 
 .divider {
-  height: 2px;
-  background-color: #ccc;
-  margin: 2rem 0;
+  height: 0.25px;
+  background-color: #e2e8f0;
   width: 100%;
 }
 
@@ -128,7 +127,7 @@
 
 .dept-desc {
   font-style: italic;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
   color: #555;
 }
 
