@@ -110,9 +110,9 @@
 }
 
 .divider {
-  height: 0.25px;
   background-color: #e2e8f0;
   width: 100%;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 /* Simple department details styling */
