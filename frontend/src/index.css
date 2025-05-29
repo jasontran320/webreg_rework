@@ -378,6 +378,7 @@ h3 {
   display: grid;
   grid-template-columns: 0.7fr 2fr 0.5fr 0.8fr 1fr 1fr;
   border-bottom: 1px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
   align-items: center;
   transition: background-color 0.2s ease;
 }
@@ -389,6 +390,7 @@ h3 {
   border-bottom: 1px solid #e2e8f0;
   align-items: center;
   transition: background-color 0.2s ease;
+  border-top: 1px solid #e2e8f0;
 }
 
 .course-item2.required {
