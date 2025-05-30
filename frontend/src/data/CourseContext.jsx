@@ -34,7 +34,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: ["CS101-D1", "CS101-D2"],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '1',
       title: 'CS 101',
       day: 'monday',
@@ -50,6 +50,25 @@ const defaultCourses = [
         "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
     }
     },
+    {
+        id: '41',
+        title: 'CS 101',
+        day: 'wednesday',
+        startTime: '09:00',
+        endTime: '10:30',
+        color: 'blue',
+        description: "Introduction to fundamental programming concepts, software engineering principles, and computational thinking.",
+        location: "HIB 100", 
+        locationCoords:{
+          "lat": 33.64834506581709,
+          "lng": -117.84352898597719,
+          "address": "HIB 100",
+          "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+      }
+      }
+  
+  
+  ],
     location: "HIB 100",
     description: "Introduction to fundamental programming concepts, software engineering principles, and computational thinking."
   },
@@ -67,7 +86,7 @@ const defaultCourses = [
     prerequisites: ['CS101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '2',
       title: 'CS201',
       day: 'monday',
@@ -82,7 +101,22 @@ const defaultCourses = [
         "address": "HIB 125",
         "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
     }
-    },
+    },{
+      id: '42',
+      title: 'CS201',
+      day: 'wednesday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'green',
+      description: "Advanced data structures class.",
+      location: "HIB 125",
+      locationCoords:{
+        "lat": 33.64834506581709,
+        "lng": -117.84352898597719,
+        "address": "HIB 125",
+        "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+    }
+    }],
     location: "HIB 125",
     description: "Advanced data structures class."
   },
@@ -100,7 +134,7 @@ const defaultCourses = [
     prerequisites: ['CS201'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '3',
       title: 'CS 301',
       day: 'tuesday',
@@ -116,6 +150,22 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '43',
+      title: 'CS 301',
+      day: 'thursday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'purple',
+      description: "Design and analysis of algorithms, including sorting, searching, divide and conquer, dynamic programming, and greedy algorithms.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }],
     location: "ICS 121",
     description: "Design and analysis of algorithms, including sorting, searching, divide and conquer, dynamic programming, and greedy algorithms."
   },
@@ -133,7 +183,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '4',
       title: 'MATH 101',
       day: 'wednesday',
@@ -149,6 +199,22 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '44',
+      title: 'MATH 101',
+      day: 'friday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'blue',
+      description: "Limits, derivatives, and integrals of functions of one variable, with applications.",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }],
     location: "RH 100",
     description: "Limits, derivatives, and integrals of functions of one variable, with applications."
   },
@@ -166,8 +232,25 @@ const defaultCourses = [
     prerequisites: ['MATH101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '5',
+      title: 'MATH 201',
+      day: 'tuesday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'yellow',
+      description: "Techniques of integration, infinite series, and introduction to multivariable calculus.",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+      
+    },
+  {
+      id: '45',
       title: 'MATH 201',
       day: 'thursday',
       startTime: '15:00',
@@ -182,7 +265,7 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
       
-    },
+    }],
     location: "RH 100",
     description: "Techniques of integration, infinite series, and introduction to multivariable calculus."
   },
@@ -200,8 +283,25 @@ const defaultCourses = [
     prerequisites: ['MATH101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '6',
+      title: 'PHYS 101',
+      day: 'wednesday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'red',
+      description: "Mechanics, kinematics, Newton's laws, energy, and momentum.",
+      location: "PSLH 100",
+      locationCoords: {
+    "lat": 33.64336323886249,
+    "lng": -117.84402251243593,
+    "address": "PSLH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  
+  {
+      id: '46',
       title: 'PHYS 101',
       day: 'friday',
       startTime: '09:00',
@@ -215,7 +315,7 @@ const defaultCourses = [
     "address": "PSLH 100",
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }],
     location: "PSLH 100",
     description: "Mechanics, kinematics, Newton's laws, energy, and momentum."
   },
@@ -233,8 +333,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '7',
+      title: 'ENG 101',
+      day: 'wednesday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'pink',
+      description: "Development of academic writing skills through essays, research, and revision.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    },
+  {
+      id: '47',
       title: 'ENG 101',
       day: 'friday',
       startTime: '11:00',
@@ -248,7 +364,7 @@ const defaultCourses = [
     "address": "HH 100",
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
-    },
+    }],
     location: "HH 100",
     description: "Development of academic writing skills through essays, research, and revision."
   },
@@ -266,8 +382,24 @@ const defaultCourses = [
     prerequisites: ['CS201', 'CS301'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '8',
+      title: 'CS 350',
+      day: 'wednesday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'green',
+      description: "Introduction to operating system principles: processes, memory management, file systems, and concurrency.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '48',
       title: 'CS 350',
       day: 'friday',
       startTime: '13:00',
@@ -281,7 +413,8 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Introduction to operating system principles: processes, memory management, file systems, and concurrency."
   },
@@ -299,8 +432,24 @@ const defaultCourses = [
     prerequisites: ['CS201'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '9',
+      title: 'CS 450',
+      day: 'wednesday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'red',
+      description: "Fundamentals of computer networking including protocols, TCP/IP, LANs, WANs, and security.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "CS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '49',
       title: 'CS 450',
       day: 'friday',
       startTime: '15:00',
@@ -314,7 +463,8 @@ const defaultCourses = [
     "address": "CS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Fundamentals of computer networking including protocols, TCP/IP, LANs, WANs, and security."
   },
@@ -332,7 +482,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '10',
       title: 'CS 215',
       day: 'tuesday',
@@ -348,6 +498,22 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '50',
+      title: 'CS 215',
+      day: 'thursday',
+      startTime: '14:00',
+      endTime: '15:30',
+      color: 'blue',
+      description: "Programming close to the hardware, covering memory management, system calls, and process control.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }],
     location: "ICS 121",
     description: "Programming close to the hardware, covering memory management, system calls, and process control."
   },
@@ -365,7 +531,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '11',
       title: 'CS 122A',
       day: 'monday',
@@ -381,6 +547,22 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '51',
+      title: 'CS 122A',
+      day: 'wednesday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'yellow',
+      description: "Introduction to database systems, relational data model, SQL, and basic database design.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }],
     location: "ICS 121",
     description: "Introduction to database systems, relational data model, SQL, and basic database design."
   },
@@ -398,7 +580,7 @@ const defaultCourses = [
     prerequisites: ['CS20'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '12',
       title: 'CS 143A',
       day: 'wednesday',
@@ -414,6 +596,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  
+  {
+      id: '52',
+      title: 'CS 143A',
+      day: 'friday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'green',
+      description: "Design and implementation of compilers including lexical analysis, parsing, and code generation.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }],
     location: "ICS 121",
     description: "Design and implementation of compilers including lexical analysis, parsing, and code generation."
   },
@@ -431,7 +630,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '13',
       title: 'CS 161',
       day: 'tuesday',
@@ -447,6 +646,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '53',
+      title: 'CS 161',
+      day: 'thursday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'purple',
+      description: "Basic AI concepts including search, planning, reasoning, and machine learning.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Basic AI concepts including search, planning, reasoning, and machine learning."
   },
@@ -464,8 +680,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '14',
+      title: 'CS 178',
+      day: 'tuesday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'blue',
+      description: "Introduction to machine learning methods, data analysis techniques, and their applications.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '54',
       title: 'CS 178',
       day: 'thursday',
       startTime: '10:00',
@@ -479,7 +711,8 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Introduction to machine learning methods, data analysis techniques, and their applications."
   },
@@ -497,8 +730,25 @@ const defaultCourses = [
     prerequisites: ['CS122A'],
     corequisites: ["CS122B-D1", "CS122B-L"],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '15',
+      title: 'CS 122B',
+      day: 'wednesday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'blue',
+      description: "Project-based course on full-stack development, focusing on databases and web technologies.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  
+  {
+      id: '55',
       title: 'CS 122B',
       day: 'friday',
       startTime: '11:00',
@@ -512,7 +762,7 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }],
     location: "ICS 121",
     description: "Project-based course on full-stack development, focusing on databases and web technologies."
   },
@@ -530,7 +780,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '16',
       title: 'CS 132',
       day: 'monday',
@@ -546,6 +796,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '56',
+      title: 'CS 132',
+      day: 'wednesday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'purple',
+      description: "Fundamentals of computer graphics including transformations, modeling, rendering, and OpenGL.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Fundamentals of computer graphics including transformations, modeling, rendering, and OpenGL."
   },
@@ -563,7 +830,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '17',
       title: 'CS 125',
       day: 'wednesday',
@@ -579,6 +846,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '57',
+      title: 'CS 125',
+      day: 'friday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'red',
+      description: "Introduction to computer security, including cryptography, access control, and network security.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Introduction to computer security, including cryptography, access control, and network security."
   },
@@ -596,8 +880,24 @@ const defaultCourses = [
     prerequisites: ['CS143A'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '18',
+      title: 'CS 145',
+      day: 'tuesday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'green',
+      description: "Design and implementation of embedded systems with real-time constraints and hardware interactions.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '58',
       title: 'CS 145',
       day: 'thursday',
       startTime: '13:00',
@@ -611,7 +911,8 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Design and implementation of embedded systems with real-time constraints and hardware interactions."
   },
@@ -629,8 +930,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '19',
+      title: 'CS 122C',
+      day: 'wednesday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'yellow',
+      description: "Advanced topics in data management including indexing, query optimization, and transactions.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '59',
       title: 'CS 122C',
       day: 'friday',
       startTime: '10:00',
@@ -644,7 +961,8 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Advanced topics in data management including indexing, query optimization, and transactions."
   },
@@ -662,7 +980,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '20',
       title: 'CS 131',
       day: 'tuesday',
@@ -678,6 +996,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '60',
+      title: 'CS 131',
+      day: 'thursday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'red',
+      description: "Concepts of programming languages including syntax, semantics, and implementation techniques.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Concepts of programming languages including syntax, semantics, and implementation techniques."
   },
@@ -695,7 +1030,7 @@ const defaultCourses = [
     prerequisites: ['CS301'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '21',
       title: 'CS 112',
       day: 'monday',
@@ -711,6 +1046,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '61',
+      title: 'CS 112',
+      day: 'wednesday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'blue',
+      description: "Study of computer organization and architecture, including instruction sets, pipelining, and memory hierarchies.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Study of computer organization and architecture, including instruction sets, pipelining, and memory hierarchies."
   },
@@ -728,8 +1080,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '22',
+      title: 'CS 134',
+      day: 'tuesday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'blue',
+      description: "Techniques and applications of computer vision including image processing, feature extraction, and recognition.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '62',
       title: 'CS 134',
       day: 'thursday',
       startTime: '15:00',
@@ -743,7 +1111,8 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "ICS 121",
     description: "Techniques and applications of computer vision including image processing, feature extraction, and recognition."
   },
@@ -761,7 +1130,7 @@ const defaultCourses = [
     prerequisites: ['ICS31'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '23',
       title: 'CS 121',
       day: 'wednesday',
@@ -777,6 +1146,23 @@ const defaultCourses = [
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '63',
+      title: 'CS 121',
+      day: 'friday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'green',
+      description: "Principles of information retrieval including search engines, ranking, and evaluation.",
+      location: "ICS 121",
+      locationCoords: {
+    "lat": 33.644175565131505,
+    "lng": -117.84184455871583,
+    "address": "ICS 121",
+    "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "ICS 121",
     description: "Principles of information retrieval including search engines, ranking, and evaluation."
   },
@@ -794,7 +1180,7 @@ const defaultCourses = [
     prerequisites: ['MATH101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '24',
       title: 'MATH 221',
       day: 'monday',
@@ -810,6 +1196,23 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '64',
+      title: 'MATH 221',
+      day: 'wednesday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'blue',
+      description: "Matrix theory, systems of linear equations, vector spaces, eigenvalues, and eigenvectors.",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "RH 100",
     description: "Matrix theory, systems of linear equations, vector spaces, eigenvalues, and eigenvectors."
   },
@@ -827,7 +1230,7 @@ const defaultCourses = [
     prerequisites: ['PHYS101', 'MATH201', 'MATH333'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '25',
       title: 'PHYS 102',
       day: 'tuesday',
@@ -843,6 +1246,23 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '65',
+      title: 'PHYS 102',
+      day: 'thursday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'blue',
+      description: "Introduction to electrostatics, electric fields, Gauss's Law, circuits, and magnetism.",
+      location: "PSLH 100",
+      locationCoords: {
+    "lat": 33.64336323886249,
+    "lng": -117.84402251243593,
+    "address": "PSLH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "PSLH 100",
     description: "Introduction to electrostatics, electric fields, Gauss's Law, circuits, and magnetism."
   },
@@ -860,7 +1280,7 @@ const defaultCourses = [
     prerequisites: ['ENG101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '26',
       title: 'ENG 201',
       day: 'wednesday',
@@ -876,6 +1296,23 @@ const defaultCourses = [
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
     },
+  {
+      id: '66',
+      title: 'ENG 201',
+      day: 'friday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'pink',
+      description: "Focuses on writing in technical and scientific contexts including reports, proposals, and documentation.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    }
+  ],
     location: "HH 100",
     description: "Focuses on writing in technical and scientific contexts including reports, proposals, and documentation."
   },
@@ -893,8 +1330,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '27',
+      title: 'BIO 101',
+      day: 'tuesday',
+      startTime: '11:00',
+      endTime: '12:30',
+      color: 'green',
+      description: "Cell structure and function, molecular genetics, and biochemical processes of life.",
+      location: "BIO SCI III 112",
+      locationCoords: {
+    "lat": 33.64524997667189,
+    "lng": -117.84616827964784,
+    "address": "Biological Sciences III 112",
+    "address2": "Biological Sciences III, 519, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    },
+  {
+      id: '67',
       title: 'BIO 101',
       day: 'thursday',
       startTime: '11:00',
@@ -908,7 +1361,8 @@ const defaultCourses = [
     "address": "Biological Sciences III 112",
     "address2": "Biological Sciences III, 519, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
-    },
+    }
+  ],
     location: "BIO SCI III 112",
     description: "Cell structure and function, molecular genetics, and biochemical processes of life."
   },
@@ -926,8 +1380,24 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '28',
+      title: 'PSYCH 101',
+      day: 'wednesday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'red',
+      description: "Survey of major areas in psychology including development, cognition, behavior, and mental health.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    },
+  {
+      id: '68',
       title: 'PSYCH 101',
       day: 'friday',
       startTime: '13:00',
@@ -941,7 +1411,8 @@ const defaultCourses = [
     "address": "HH 100",
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
-    },
+    }
+  ],
     location: "HH 100",
     description: "Survey of major areas in psychology including development, cognition, behavior, and mental health."
   },
@@ -959,7 +1430,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '29',
       title: 'PHIL 101',
       day: 'tuesday',
@@ -975,6 +1446,23 @@ const defaultCourses = [
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
     },
+  {
+      id: '69',
+      title: 'PHIL 101',
+      day: 'thursday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'purple',
+      description: "Introduction to philosophical reasoning, logic, ethics, metaphysics, and epistemology.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    }
+  ],
     location: "HH 100",
     description: "Introduction to philosophical reasoning, logic, ethics, metaphysics, and epistemology."
   },
@@ -992,7 +1480,7 @@ const defaultCourses = [
     prerequisites: [],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '30',
       title: 'ECON 101',
       day: 'monday',
@@ -1008,6 +1496,23 @@ const defaultCourses = [
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
     },
+  {
+      id: '70',
+      title: 'ECON 101',
+      day: 'wednesday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'pink',
+      description: "Basic concepts of microeconomics: supply and demand, market structure, and consumer behavior.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    }
+  ],
     location: "HH 100",
     description: "Basic concepts of microeconomics: supply and demand, market structure, and consumer behavior."
   },
@@ -1025,7 +1530,7 @@ const defaultCourses = [
     prerequisites: ['ENG101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '31',
       title: 'ENG 202',
       day: 'tuesday',
@@ -1041,6 +1546,23 @@ const defaultCourses = [
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
     },
+  {
+      id: '71',
+      title: 'ENG 202',
+      day: 'thursday',
+      startTime: '13:00',
+      endTime: '14:30',
+      color: 'pink',
+      description: "Focus on argumentative and analytical writing, advanced research techniques, and revision.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    }
+  ],
     location: "HH 100",
     description: "Focus on argumentative and analytical writing, advanced research techniques, and revision."
   },
@@ -1058,7 +1580,7 @@ const defaultCourses = [
     prerequisites: ['MATH201', 'MATH333'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '32',
       title: 'MATH 130A',
       day: 'wednesday',
@@ -1074,6 +1596,23 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '72',
+      title: 'MATH 130A',
+      day: 'friday',
+      startTime: '09:00',
+      endTime: '10:30',
+      color: 'purple',
+      description: "Basic probability theory, random variables, distributions, expectation, and variance.",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "RH 100",
     description: "Basic probability theory, random variables, distributions, expectation, and variance."
   },
@@ -1091,8 +1630,25 @@ const defaultCourses = [
     prerequisites: ['ENG101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '33',
+      title: 'ENG 203',
+      day: 'tuesday',
+      startTime: '10:00',
+      endTime: '11:30',
+      color: 'pink',
+      description: "Practice in critical reading and writing about literature, philosophy, and arts.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    },
+  
+  {
+      id: '73',
       title: 'ENG 203',
       day: 'thursday',
       startTime: '10:00',
@@ -1106,7 +1662,8 @@ const defaultCourses = [
     "address": "HH 100",
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
-    },
+    }
+  ],
     location: "HH 100",
     description: "Practice in critical reading and writing about literature, philosophy, and arts."
   },
@@ -1124,8 +1681,24 @@ const defaultCourses = [
     prerequisites: ['MATH101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '34',
+      title: 'MATH 105',
+      day: 'wednesday',
+      startTime: '14:00',
+      endTime: '15:30',
+      color: 'blue',
+      description: "Formal logic, propositional and predicate calculus, completeness and compactness theorems.",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+  {
+      id: '74',
       title: 'MATH 105',
       day: 'friday',
       startTime: '14:00',
@@ -1139,7 +1712,8 @@ const defaultCourses = [
     "address": "RH 100",
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }
+  ],
     location: "RH 100",
     description: "Formal logic, propositional and predicate calculus, completeness and compactness theorems."
   },
@@ -1157,7 +1731,7 @@ const defaultCourses = [
     prerequisites: ['ENG101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '35',
       title: 'ENG 204',
       day: 'wednesday',
@@ -1173,6 +1747,23 @@ const defaultCourses = [
     "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
 }
     },
+  {
+      id: '75',
+      title: 'ENG 204',
+      day: 'friday',
+      startTime: '15:00',
+      endTime: '16:30',
+      color: 'pink',
+      description: "Workshop-based course in short story writing with peer critique and revision.",
+      location: "HH 100",
+      locationCoords: {
+    "lat": 33.64724397216237,
+    "lng": -117.84400105476381,
+    "address": "HH 100",
+    "address2": "Humanities Hall, 514, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92617, United States"
+}
+    }
+  ],
     location: "HH 100",
     description: "Workshop-based course in short story writing with peer critique and revision."
   },
@@ -1187,15 +1778,15 @@ const defaultCourses = [
     required: false,
     completed: false,
     department: 'MATH',
-    prerequisites: ['MATH221'],
+    prerequisites: ['MATH101'],
     corequisites: [],
     iscorequisite: false,
-    block: {
+    block: [{
       id: '36',
-      title: 'MATH 221 Discussion',
+      title: 'MATH 333',
       day: 'monday',
       startTime: '11:00',
-      endTime: '12:30',
+      endTime: '12:00',
       color: 'blue',
       description: "Delve into calculus on a much larger scale",
       location: "RH 100",
@@ -1206,6 +1797,40 @@ const defaultCourses = [
     "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
     },
+  {
+      id: '76',
+      title: 'MATH 333',
+      day: 'wednesday',
+      startTime: '11:00',
+      endTime: '12:00',
+      color: 'blue',
+      description: "Delve into calculus on a much larger scale",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    },
+
+    {
+      id: '77',
+      title: 'MATH 333',
+      day: 'friday',
+      startTime: '11:00',
+      endTime: '12:00',
+      color: 'blue',
+      description: "Delve into calculus on a much larger scale",
+      location: "RH 100",
+      locationCoords: {
+    "lat": 33.64430784211032,
+    "lng": -117.84415125846864,
+    "address": "RH 100",
+    "address2": "University of California, Irvine, Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
+}
+    }
+  ],
     location: "RH 100",
     description: "Delve into calculus on a much larger scale"
   },
@@ -1224,7 +1849,7 @@ const defaultCourses = [
     prerequisites: ['CS101'],
     corequisites: [],
     iscorequisite: true,
-    block: {
+    block: [{
       id: '37',
       title: 'CS 101 Discussion 1',
       day: 'thursday',
@@ -1239,7 +1864,7 @@ const defaultCourses = [
         "address": "HIB 100",
         "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
     }
-    },
+    }],
     location: "HIB 100",
     description: "Discussion Section 1"
   },
@@ -1257,7 +1882,7 @@ const defaultCourses = [
     prerequisites: ['CS101'],
     corequisites: [],
     iscorequisite: true,
-    block: {
+    block: [{
       id: '38',
       title: 'CS 101 Discussion 2',
       day: 'friday',
@@ -1272,7 +1897,7 @@ const defaultCourses = [
         "address": "HIB 100",
         "address2": "Ring Mall, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
     }
-    },
+    }],
     location: "HIB 100",
     description: "Discussion Section 2"
   },
@@ -1292,7 +1917,7 @@ const defaultCourses = [
     prerequisites: ['CS122B'],
     corequisites: [],
     iscorequisite: true,
-    block: {
+    block: [{
       id: '39',
       title: 'CS 122B Projects Lab',
       day: 'monday',
@@ -1307,7 +1932,7 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }],
     location: "ICS 121",
     description: "Project-based course on full-stack development, focusing on databases and web technologies."
   },
@@ -1327,7 +1952,7 @@ const defaultCourses = [
     prerequisites: ['CS122B'],
     corequisites: [],
     iscorequisite: true,
-    block: {
+    block: [{
       id: '40',
       title: 'CS 122B discussion section 1',
       day: 'tuesday',
@@ -1342,7 +1967,7 @@ const defaultCourses = [
     "address": "ICS 121",
     "address2": "Information and Computer Science, 302, Inner Ring, University of California, Irvine, Irvine, Orange County, California, 92697, United States"
 }
-    },
+    }],
     location: "ICS 121",
     description: "Discussion Section for 122B."
   },

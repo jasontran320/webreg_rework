@@ -146,89 +146,95 @@ export default function Planner() {
   
 
   const handleDrop = (courseId) => {
-    const course = courses.find(course => course.id === courseId);
-    // Temporary array to store deleted courses
-    let deleted_courses = [];
+  const course = courses.find(course => course.id === courseId);
+  let deleted_courses = [];
 
-    // Preprocess: find all courses to delete from both lists
-    registeredCourses.forEach(course => {
-      if (course.id === courseId || course.prerequisites.includes(courseId)) {
-        deleted_courses.push(course);
-      }
-    });
-
-    waitlistedCourses.forEach(course => {
-      if (course.prerequisites.includes(courseId)) {
-        deleted_courses.push(course);
-      }
-    });
-    const deletedString = deleted_courses.length > 1
-          ? deleted_courses.slice(1).map(course => course.id).join(', ')
-          : '';
-        
-
-        const confirmed = !deletedString || window.confirm(
-          `Are you sure you want to drop ${courseId}? This is a prerequisite to these classes which will also be dropped: ${deletedString}`
-        );
-        
-        if (!deletedString) {
-            let confirm = window.confirm(
-          `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
-          );
-          if (!confirm) {return false;}
-        } 
-   
-   if (confirmed) {
-
-      // Now filter the state lists
-      setRegisteredCourses(
-        registeredCourses.filter(course =>
-          course.id !== courseId && !course.prerequisites.includes(courseId)
-        )
-      );
-
-      setWaitlistedCourses(
-        waitlistedCourses.filter(course =>
-          !course.prerequisites.includes(courseId)
-        )
-      );
-
-      const blockIdsToRemove = deleted_courses.map(course => course.block.id);
-      const courseIdsToUpdate = deleted_courses.map(course => course.id);
-      setBlocks(prevBlocks =>
-        prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
-      );
-
-      setCourses(prevCourses =>
-        prevCourses.map(course => {
-          if (!courseIdsToUpdate.includes(course.id)) return course;
-
-          if (course.status === 'Waitlisted') {
-            return {
-              ...course,
-              waitlist: course.waitlist - 1,
-              status: course.waitlist - 1 > 0 ? 'Waitlisted' : 'Available'
-            };
-          } else {
-            const newEnrolled = course.enrolled - 1;
-            return {
-              ...course,
-              enrolled: newEnrolled,
-              status: newEnrolled < course.seats ? 'Available' : 'Waitlisted'
-            };
-          }
-        })
-      );
-      if (deletedString) setSuccess('Blocks deleted successfully'); else setSuccess('Block deleted successfully');
-      setTimeout(() => setSuccess(''), 3000);
-      return true;
+  // Find all courses to delete
+  registeredCourses.forEach(course => {
+    if (course.id === courseId || course.prerequisites.includes(courseId)) {
+      deleted_courses.push(course);
     }
-    else {
-      setSuccess('Deletion Cancelled');
-      setTimeout(() => setSuccess(''), 3000);
-      return false
+  });
+
+  waitlistedCourses.forEach(course => {
+    if (course.prerequisites.includes(courseId)) {
+      deleted_courses.push(course);
     }
-  };
+  });
+
+  const deletedString = deleted_courses.length > 1
+    ? deleted_courses.slice(1).map(course => course.id).join(', ')
+    : '';
+
+  const confirmed = !deletedString || window.confirm(
+    `Are you sure you want to drop ${courseId}? This is a prerequisite to these classes which will also be dropped: ${deletedString}`
+  );
+
+  if (!deletedString) {
+    const confirm = window.confirm(
+      `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
+    );
+    if (!confirm) return false;
+  }
+
+  if (confirmed) {
+    // Remove affected courses
+    setRegisteredCourses(
+      registeredCourses.filter(course =>
+        course.id !== courseId && !course.prerequisites.includes(courseId)
+      )
+    );
+
+    setWaitlistedCourses(
+      waitlistedCourses.filter(course =>
+        !course.prerequisites.includes(courseId)
+      )
+    );
+
+    // ✅ Flatten all block IDs to remove
+    const blockIdsToRemove = deleted_courses
+      .flatMap(course => Array.isArray(course.block) ? course.block : [])
+      .map(block => block.id);
+
+    const courseIdsToUpdate = deleted_courses.map(course => course.id);
+
+    // Remove blocks
+    setBlocks(prevBlocks =>
+      prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
+    );
+
+    // Update course enrollment/waitlist
+    setCourses(prevCourses =>
+      prevCourses.map(course => {
+        if (!courseIdsToUpdate.includes(course.id)) return course;
+
+        if (course.status === 'Waitlisted') {
+          return {
+            ...course,
+            waitlist: course.waitlist - 1,
+            status: course.waitlist - 1 > 0 ? 'Waitlisted' : 'Available'
+          };
+        } else {
+          const newEnrolled = course.enrolled - 1;
+          return {
+            ...course,
+            enrolled: newEnrolled,
+            status: newEnrolled < course.seats ? 'Available' : 'Waitlisted'
+          };
+        }
+      })
+    );
+
+    setSuccess(deletedString ? 'Blocks deleted successfully' : 'Block deleted successfully');
+    setTimeout(() => setSuccess(''), 3000);
+    return true;
+  } else {
+    setSuccess('Deletion Cancelled');
+    setTimeout(() => setSuccess(''), 3000);
+    return false;
+  }
+};
+
 
   const handleInputChange = (e, dur=null) => {
     let { name, value } = e.target;
@@ -515,43 +521,60 @@ if (!updatedBlock.title) {
 
   // Delete a block
   const handleDeleteBlock = (blockId) => {
-    // Find the course that contains the block with the given blockId
-    const findCourseByBlockId = (courses) => {
-      return courses.find(course => course.block?.id === blockId);
-    };
-
-    // Search for the block in both registeredCourses and waitlistedCourses
-    const courseInRegistered = findCourseByBlockId(registeredCourses);
-    const courseInWaitlisted = findCourseByBlockId(waitlistedCourses);
-
-    // If the course is found in registeredCourses, filter it out
-    if (courseInRegistered) {
-      if (!handleDrop(courseInRegistered.id)) return true;
-    }
-
-    // If the course is found in waitlistedCourses, filter it out
-     else if (courseInWaitlisted) {
-      setWaitlistedCourses(waitlistedCourses.filter(course => course.id !== courseInWaitlisted.id));
-      setBlocks(blocks.filter(block => block.id !== blockId));
-      setSuccess('Block deleted successfully');
-      setTimeout(() => setSuccess(''), 3000);
-    }
-    else {
-      setBlocks(blocks.filter(block => block.id !== blockId));
-      setSuccess('Block deleted successfully');
-      setTimeout(() => setSuccess(''), 3000);
-    }
-
-    if (checkOverlap(newBlock)) {
-      setError('');
-      setvalidDuration(true);
-      if (defaultStart) setvalidStart(true);
-      if (defaultDay) setvalidDay(true);
-      setvalidSubmit(true);
-      
-    }
-    
+  // Helper to find a course that contains the block
+  const findCourseContainingBlock = (courses) => {
+    return courses.find(course =>
+      Array.isArray(course.block)
+        ? course.block.some(b => b.id === blockId)
+        : course.block?.id === blockId
+    );
   };
+
+  const courseInRegistered = findCourseContainingBlock(registeredCourses);
+  const courseInWaitlisted = findCourseContainingBlock(waitlistedCourses);
+
+  // Case 1: Block belongs to a registered course
+  if (courseInRegistered) {
+    const dropSucceeded = handleDrop(courseInRegistered.id);
+    if (!dropSucceeded) return true; // user cancelled drop
+  }
+
+  // Case 2: Block belongs to a waitlisted course
+  else if (courseInWaitlisted) {
+    const blockIdsToRemove = Array.isArray(courseInWaitlisted.block)
+      ? courseInWaitlisted.block.map(b => b.id)
+      : [courseInWaitlisted.block?.id].filter(Boolean);
+
+    // Remove course from waitlist and associated blocks
+    setWaitlistedCourses(waitlistedCourses =>
+      waitlistedCourses.filter(course => course.id !== courseInWaitlisted.id)
+    );
+
+    setBlocks(blocks =>
+      blocks.filter(block => !blockIdsToRemove.includes(block.id))
+    );
+
+    setSuccess('All associated blocks deleted successfully');
+    setTimeout(() => setSuccess(''), 3000);
+  }
+
+  // Case 3: Block is standalone
+  else {
+    setBlocks(blocks => blocks.filter(block => block.id !== blockId));
+    setSuccess('Block deleted successfully');
+    setTimeout(() => setSuccess(''), 3000);
+  }
+
+  // Re-run form validation logic
+  if (checkOverlap(newBlock)) {
+    setError('');
+    setvalidDuration(true);
+    if (defaultStart) setvalidStart(true);
+    if (defaultDay) setvalidDay(true);
+    setvalidSubmit(true);
+  }
+};
+
 
 
   // Position a block in the grid
@@ -630,27 +653,66 @@ if (!updatedBlock.title) {
     return colorMap[color] || '#6b7280';  // Default to gray if no match
   }
 
-    const handleSave = () => {
-      if (!selectedBlock.title) {
-        setSuccess2('')
-        setError2('Title cannot be empty, please try again');
-      }
-      else {
-        // Handle random color if needed
-        let updatedBlock = { ...selectedBlock };
-
-        // Find and update the block
-        setBlocks(prevBlocks => 
-          prevBlocks.map(block => 
-            block.id === selectedBlock.id ? updatedBlock : block
-          )
-        );
-
-        setSuccess('Block Saved')
-        setTimeout(() => setSuccess(''), 3000);
-        closePopup(true);
-      }
+const handleSave = () => {
+  if (!selectedBlock.title) {
+    setSuccess2('')
+    setError2('Title cannot be empty, please try again');
+  }
+  else {
+    // Handle random color if needed
+    let updatedBlock = { ...selectedBlock };
+    
+    // Helper function to find course by block ID
+    const findCourseByBlockId = (courses, blockId) => {
+      return courses.find(course =>
+        Array.isArray(course.block) &&
+        course.block.some(block => block.id === blockId)
+      );
     };
+    
+    // Check if this block belongs to a registered or waitlisted course
+    const courseInRegistered = findCourseByBlockId(registeredCourses, selectedBlock.id);
+    const courseInWaitlisted = findCourseByBlockId(waitlistedCourses, selectedBlock.id);
+    
+    if (courseInRegistered || courseInWaitlisted) {
+      // Get the course that contains this block
+      const targetCourse = courseInRegistered || courseInWaitlisted;
+      
+      // Get all block IDs from this course
+      const courseBlockIds = targetCourse.block.map(block => block.id);
+      
+      // Update all blocks that belong to this course
+      setBlocks(prevBlocks =>
+        prevBlocks.map(block => {
+          if (courseBlockIds.includes(block.id)) {
+            // Apply the same changes to all blocks in the course
+            return {
+              ...block,
+              title: updatedBlock.title,
+              description: updatedBlock.description,
+              color: updatedBlock.color,
+              location: updatedBlock.location,
+              locationCoords: updatedBlock.locationCoords
+              // Add any other properties that should be propagated
+            };
+          }
+          return block;
+        })
+      );
+    } else {
+      // This is an orphaned block or from other courses, update only the specific block
+      setBlocks(prevBlocks =>
+        prevBlocks.map(block =>
+          block.id === selectedBlock.id ? updatedBlock : block
+        )
+      );
+    }
+    
+    setSuccess('Block Saved')
+    setTimeout(() => setSuccess(''), 3000);
+    closePopup(true);
+  }
+};
     
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [isEditingDescription, setIsEditingDescription] = useState(false);

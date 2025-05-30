@@ -26,18 +26,30 @@ export default function Register() {
 
   // Enhanced mock data with prerequisites and departments
   const { courses, setCourses, registeredCourses, setRegisteredCourses, waitlistedCourses, setWaitlistedCourses, blocks, setBlocks, corequisiteCourses, setCorequisiteCourses } = useContext(CourseContext)
-  const checkOverlap = (newBlock) => {
-  const overlappingBlocks = blocks.filter(block => {
-    if (block.day !== newBlock.day) return false;
-    
-    const blockStart = convertTimeToMinutes(block.startTime);
-    const blockEnd = convertTimeToMinutes(block.endTime);
-    const newStart = convertTimeToMinutes(newBlock.startTime);
-    const newEnd = convertTimeToMinutes(newBlock.endTime);
-    return (newStart < blockEnd && newEnd > blockStart);
+ const checkOverlap = (newBlocks) => {
+  const overlappingBlocks = [];
+
+  newBlocks.forEach(newBlock => {
+    blocks.forEach(block => {
+      if (block.day !== newBlock.day) return;
+
+      const blockStart = convertTimeToMinutes(block.startTime);
+      const blockEnd = convertTimeToMinutes(block.endTime);
+      const newStart = convertTimeToMinutes(newBlock.startTime);
+      const newEnd = convertTimeToMinutes(newBlock.endTime);
+
+      if (newStart < blockEnd && newEnd > blockStart) {
+        // Avoid duplicates
+        if (!overlappingBlocks.some(b => b.id === block.id)) {
+          overlappingBlocks.push(block);
+        }
+      }
+    });
   });
+
   return overlappingBlocks.length > 0 ? overlappingBlocks : null;
 };
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('search');
@@ -224,20 +236,29 @@ const groupedDegreeCourses = {
   const handleRemoveWaitlist = (courseId) => {
     const waitlistedCourse = waitlistedCourses.find(c => c.id === courseId);
     if (!waitlistedCourse) return;
+
     const course = courses.find(course => course.id === courseId);
+
     if (course) {
-        const blockId = course.block.id;
-        setBlocks(blocks.filter(block => block.id !== blockId));
+      const blockIdsToRemove = course.block.map(b => b.id);
+      setBlocks(prevBlocks =>
+        prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
+      );
     }
-    setWaitlistedCourses(waitlistedCourses.filter(course => course.id !== courseId));
-    
-    // Update available courses
-    setCourses(courses.map(c => 
-      c.id === courseId 
-        ? {...c, status: 'Waitlisted', waitlist: c.waitlist - 1} 
-        : c
-    ));
+
+    setWaitlistedCourses(prev =>
+      prev.filter(course => course.id !== courseId)
+    );
+
+    setCourses(prev =>
+      prev.map(c =>
+        c.id === courseId
+          ? { ...c, status: 'Waitlisted', waitlist: c.waitlist - 1 }
+          : c
+      )
+    );
   };
+
 
 const checkPrerequisites = (course) => {
   if (!course.prerequisites || course.prerequisites.length === 0) return true;
@@ -321,18 +342,26 @@ const getStatusClass2 = (course) => {
 
 
 
-  const handleDrop = useCallback((courseId, isPropogation=true) => {
+const handleDrop = useCallback((courseId, isPropogation = true, processedCourses = new Set()) => {
   try {
+    // Check if we've already processed this course in this batch
+    if (processedCourses.has(courseId)) {
+      console.log(`Course ${courseId} already processed in this batch, skipping.`);
+      return true;
+    }
+    
+    // Add to processed set
+    processedCourses.add(courseId);
+
     const course = courses.find(course => course.id === courseId);
     if (!course) {
       console.error('Course not found:', courseId);
       return false;
     }
 
-    // Temporary array to store deleted courses
     let deleted_courses = [];
 
-    // Preprocess: find all courses to delete from both lists
+    // Find all registered and waitlisted courses that depend on this one
     registeredCourses.forEach(course => {
       if (course.id === courseId || course.prerequisites.includes(courseId)) {
         deleted_courses.push(course);
@@ -348,25 +377,26 @@ const getStatusClass2 = (course) => {
     const deletedString = deleted_courses.length > 1
       ? deleted_courses.slice(1).map(course => course.id).join(', ')
       : '';
-    
 
     const confirmed = !deletedString || window.confirm(
       `Are you sure you want to drop ${courseId}? This is a prerequisite to these classes which will also be dropped: ${deletedString}`
     );
-    
+
     if (!deletedString && isPropogation) {
-        let confirm = window.confirm(
-      `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
+      let confirm = window.confirm(
+        `Are you sure you want to drop ${courseId}? This is a registered class, you may not re-register in the future depending on enrollment status`
       );
-      if (!confirm) {return false;}
+      if (!confirm) return false;
     }
-    
+
     if (confirmed) {
-      // Get all block IDs and course IDs to update before state changes
-      const blockIdsToRemove = deleted_courses.map(course => course.block.id);
+      // Rest of the function remains the same...
+      const blockIdsToRemove = deleted_courses
+        .flatMap(course => course.block)
+        .map(block => block.id);
+
       const courseIdsToUpdate = deleted_courses.map(course => course.id);
 
-      // Batch all state updates together
       setRegisteredCourses(prev =>
         prev.filter(course =>
           course.id !== courseId && !course.prerequisites.includes(courseId)
@@ -374,24 +404,22 @@ const getStatusClass2 = (course) => {
       );
 
       setWaitlistedCourses(prev =>
-        prev.filter(course =>
-          !course.prerequisites.includes(courseId)
-        )
+        prev.filter(course => !course.prerequisites.includes(courseId))
       );
 
-      setBlocks(prevBlocks =>
-        prevBlocks.filter(block => !blockIdsToRemove.includes(block.id))
+      setBlocks(prev =>
+        prev.filter(block => !blockIdsToRemove.includes(block.id))
       );
 
-      setCourses(prevCourses =>
-        prevCourses.map(course => {
+      setCourses(prev =>
+        prev.map(course => {
           if (!courseIdsToUpdate.includes(course.id)) return course;
 
           if (course.status === 'Waitlisted') {
-            const newWaitlist = course.waitlist - 1;
+            const newWaitlist = Math.max(0, course.waitlist - 1);
             return {
               ...course,
-              waitlist: Math.max(0, newWaitlist),
+              waitlist: newWaitlist,
               status: newWaitlist > 0 ? 'Waitlisted' : 'Available'
             };
           } else {
@@ -404,9 +432,10 @@ const getStatusClass2 = (course) => {
           }
         })
       );
-      
+
       return true;
     }
+
     return false;
   } catch (error) {
     console.error('Error dropping course:', error);
@@ -414,19 +443,30 @@ const getStatusClass2 = (course) => {
     return false;
   }
 }, [
-  courses, 
-  registeredCourses, 
-  waitlistedCourses, 
-  setRegisteredCourses, 
-  setWaitlistedCourses, 
-  setBlocks, 
+  courses,
+  registeredCourses,
+  waitlistedCourses,
+  setRegisteredCourses,
+  setWaitlistedCourses,
+  setBlocks,
   setCourses
 ]);
 
-const handleDeleteBlock = useCallback((blockId) => {
+// And then modify the collision handling:
+// const processedCourses = new Set();
+// for (const block of collision_block) {
+//   const result = handleDeleteBlock(block.id, processedCourses);
+//   // ...
+// }
+
+
+const handleDeleteBlock = useCallback((blockId, processedCourses = new Set()) => {
   try {
     const findCourseByBlockId = (courses) => {
-      return courses.find(course => course.block?.id === blockId);
+      return courses.find(course =>
+        Array.isArray(course.block) &&
+        course.block.some(block => block.id === blockId)
+      );
     };
 
     const courseInRegistered = findCourseByBlockId(registeredCourses);
@@ -435,16 +475,27 @@ const handleDeleteBlock = useCallback((blockId) => {
     let deleted = false;
 
     if (courseInRegistered) {
-      const dropped = handleDrop(courseInRegistered.id, false);
+      // Pass the processedCourses Set to handleDrop
+      const dropped = handleDrop(courseInRegistered.id, false, processedCourses);
       deleted = dropped;
+      if (dropped === false) {return false}
     } else if (courseInWaitlisted) {
+      // Remove the block from the course
       setWaitlistedCourses(prev =>
-        prev.filter(course => course.id !== courseInWaitlisted.id)
+        prev.map(course =>
+          course.id === courseInWaitlisted.id
+            ? {
+                ...course,
+                block: course.block.filter(block => block.id !== blockId)
+              }
+            : course
+        ).filter(course => course.block.length > 0) // remove course if no blocks left
       );
+
       setBlocks(prev => prev.filter(block => block.id !== blockId));
       deleted = true;
     } else {
-      // Check if block exists before trying to delete
+      // Remove orphaned block
       const blockExists = blocks.some(block => block.id === blockId);
       if (blockExists) {
         setBlocks(prev => prev.filter(block => block.id !== blockId));
@@ -461,9 +512,10 @@ const handleDeleteBlock = useCallback((blockId) => {
   }
 }, [registeredCourses, waitlistedCourses, blocks, handleDrop]);
 
+
 const handleRegister = useCallback((course) => {
   try {
-    // Check if prerequisites are met
+    // Check prerequisites
     const prereqsMet = checkPrerequisites(course);
     if (!prereqsMet) {
       alert(`You must complete the prerequisites for ${course.id} first!`);
@@ -471,46 +523,106 @@ const handleRegister = useCallback((course) => {
     }
 
     if (degreeProgress.currentlyRegistered + degreeProgress.currentlyWaitlisted + course.credits > 18) {
-      let total = degreeProgress.currentlyRegistered + degreeProgress.currentlyWaitlisted
+      const total = degreeProgress.currentlyRegistered + degreeProgress.currentlyWaitlisted;
       alert(`You currently have ${total} registered and/or waitlisted units. You can only register maximum 18. Registering in this class will exceed that threshold. Please contact your administrators for special circumstances`);
       return;
     }
 
     const collision_block = checkOverlap(course.block);
     if (collision_block && collision_block.length > 0) {
-      const blockTitles = collision_block
-        .map(block => `${block.title}@${block.day}: ${format_time(block.startTime)} - ${format_time(block.endTime)}`)
-        .join(', ');
-
-      const confirmed = window.confirm(
-        `Are you sure you want to register for ${course.id}? This conflicts with these event blocks which will be replaced and dropped: ${blockTitles}.`
-      );
+      // Helper function to find course by block ID
+      const findCourseByBlockId = (courses, blockId) => {
+        return courses.find(course =>
+          Array.isArray(course.block) &&
+          course.block.some(block => block.id === blockId)
+        );
+      };
       
+      // Sort collision blocks based on priority
+      const sortedCollisionBlocks = collision_block.sort((a, b) => {
+        // Get priority for each block
+        const getPriority = (block) => {
+          const courseInRegistered = findCourseByBlockId(registeredCourses, block.id);
+          const courseInWaitlisted = findCourseByBlockId(waitlistedCourses, block.id);
+          
+          if (courseInRegistered) {
+            // Check if registered course has corequisites
+            if (courseInRegistered.corequisites && courseInRegistered.corequisites.length > 0) {
+              return 1; // Registered with corequisites (highest priority)
+            }
+            return 2; // Registered without corequisites
+          }
+          
+          if (courseInWaitlisted) {
+            return 2; // Waitlisted (same as registered without corequisites)
+          }
+          
+          return 999; // Everything else (lowest priority)
+        };
+        
+        return getPriority(a) - getPriority(b);
+      });
+
+      // Replace collision_block with sorted version
+      const collision_block_sorted = sortedCollisionBlocks;
+
+      // Create a Set to store all block titles that will be affected
+      const blockTitlesSet = new Set();
+
+      // Process each collision block
+      collision_block_sorted.forEach(block => {
+        // Check if this block belongs to a registered or waitlisted course
+        const courseInRegistered = findCourseByBlockId(registeredCourses, block.id);
+        const courseInWaitlisted = findCourseByBlockId(waitlistedCourses, block.id);
+      
+        if (courseInRegistered) {
+          // Add ALL blocks from the registered course to the set
+          courseInRegistered.block.forEach(courseBlock => {
+            const blockTitle = `${courseBlock.title}@${courseBlock.day}: ${format_time(courseBlock.startTime)} - ${format_time(courseBlock.endTime)}`;
+            blockTitlesSet.add(blockTitle);
+          });
+        } else if (courseInWaitlisted) {
+          // Add ALL blocks from the waitlisted course to the set
+          courseInWaitlisted.block.forEach(courseBlock => {
+            const blockTitle = `${courseBlock.title}@${courseBlock.day}: ${format_time(courseBlock.startTime)} - ${format_time(courseBlock.endTime)}`;
+            blockTitlesSet.add(blockTitle);
+          });
+        } else {
+          // This is an orphaned block, add just this block
+          const blockTitle = `${block.title}@${block.day}: ${format_time(block.startTime)} - ${format_time(block.endTime)}`;
+          blockTitlesSet.add(blockTitle);
+        }
+      });
+
+// Convert Set to array and join
+const blockTitles = Array.from(blockTitlesSet).join(', ');
+
+const confirmed = window.confirm(
+  `Are you sure you want to register for ${course.id}? This conflicts with these event blocks which will all be replaced and dropped: ${blockTitles}.`
+);
+
       if (confirmed) {
-        // Delete all conflicting blocks
         let allDeleted = true;
         const failedBlocks = [];
-        
+        const processedCourses = new Set(); // Create the Set here
+
         for (const block of collision_block) {
-          console.log('Deleting Block ID:', block.id);
-          const result = handleDeleteBlock(block.id);
+          console.log(block)
+          const result = handleDeleteBlock(block.id, processedCourses); // Pass it to handleDeleteBlock
           if (!result) {
             allDeleted = false;
             failedBlocks.push(block.title || block.id);
+            return;
           }
         }
-        
-        if (!allDeleted) {
-          return;
-        }
+
+        if (!allDeleted) return;
       } else {
         return;
       }
     }
 
-    // Proceed with registration
     if (course.status === 'Available') {
-      // Create the new registered course object
       const newRegisteredCourse = {
         id: course.id,
         name: course.name,
@@ -526,23 +638,24 @@ const handleRegister = useCallback((course) => {
         iscorequisite: course.iscorequisite
       };
 
-      // Batch all state updates together
-      setCourses(prevCourses => 
-        prevCourses.map(c => 
-          c.id === course.id 
-            ? {...c, enrolled: c.enrolled + 1, status: 'Registered'}
+      setCourses(prevCourses =>
+        prevCourses.map(c =>
+          c.id === course.id
+            ? { ...c, enrolled: c.enrolled + 1, status: 'Registered' }
             : c
         )
       );
 
-      setBlocks(prevBlocks => [...prevBlocks, course.block]);
+      setBlocks(prevBlocks => [...prevBlocks, ...course.block]); // <-- spread the array
       setRegisteredCourses(prev => [...prev, newRegisteredCourse]);
-      if (course.corequisites.length > 0) window.alert(`Successfully registered for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses to not be dropped.`);
 
-    } else if ((course.status === 'Waitlisted') && 
-              !waitlistedCourses.some(c => c.id === course.id)) {
-      
-      // Create the new waitlisted course object
+      if (course.corequisites.length > 0)
+        window.alert(`Successfully registered for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses to not be dropped.`);
+
+    } else if (
+      course.status === 'Waitlisted' &&
+      !waitlistedCourses.some(c => c.id === course.id)
+    ) {
       const newWaitlistedCourse = {
         id: course.id,
         name: course.name,
@@ -556,34 +669,37 @@ const handleRegister = useCallback((course) => {
         prerequisites: course.prerequisites
       };
 
-      // Batch all state updates together
-      setCourses(prevCourses => 
-        prevCourses.map(c => 
-          c.id === course.id 
-            ? {...c, waitlist: c.waitlist + 1, status: 'Waitlisted'} 
+      setCourses(prevCourses =>
+        prevCourses.map(c =>
+          c.id === course.id
+            ? { ...c, waitlist: c.waitlist + 1, status: 'Waitlisted' }
             : c
         )
       );
 
-      setBlocks(prevBlocks => [...prevBlocks, course.block]);
+      setBlocks(prevBlocks => [...prevBlocks, ...course.block]); // <-- spread the array
       setWaitlistedCourses(prev => [...prev, newWaitlistedCourse]);
-      if (course.corequisites.length > 0) window.alert(`Successfully waitlisted for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses if you get registered!`);
+
+      if (course.corequisites.length > 0)
+        window.alert(`Successfully waitlisted for ${course.id} (${course.name}). Please ensure you enroll in all corequisite courses if you get registered!`);
     }
   } catch (error) {
     console.error('Error registering for course:', error);
     alert('An error occurred while registering for the course. Please try again.');
   }
 }, [
-  checkPrerequisites, 
-  checkOverlap, 
-  format_time, 
-  handleDeleteBlock, 
-  waitlistedCourses, 
-  setCourses, 
-  setBlocks, 
-  setRegisteredCourses, 
-  setWaitlistedCourses
+  checkPrerequisites,
+  checkOverlap,
+  format_time,
+  handleDeleteBlock,
+  waitlistedCourses,
+  setCourses,
+  setBlocks,
+  setRegisteredCourses,
+  setWaitlistedCourses,
+  degreeProgress
 ]);
+
 
 const [sortBy, setSortBy] = useState('department-asc');
 
@@ -808,8 +924,17 @@ useEffect(() => {
                             <div className="details-section">
                               <h4>Course Details</h4>
                               <p>{course.description}</p>
-                              <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                              <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                              <p>
+                                <strong>Day:</strong>{' '}
+                                {course.block.map(b => (
+                                  b.day.charAt(0).toUpperCase() + b.day.slice(1)
+                                )).join(', ')}
+                              </p>
+                              <p>
+                                <strong>Time:</strong>{' '}
+                                {`${format_time(course.block[0].startTime)} - ${format_time(course.block[0].endTime)}`}
+                              </p>
+
                               <p><strong>Location:</strong> {course.location}</p>
                               <p><strong>Department:</strong> {course.department}</p>
                               <p><strong>Prerequisites:</strong> {course.prerequisites.length > 0 ? 
@@ -901,8 +1026,17 @@ useEffect(() => {
                                       <div className="details-section">
                                         <h4>Course Details</h4>
                                         <p>{coreqCourse.description}</p>
-                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
-                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        <p>
+                                          <strong>Day:</strong>{' '}
+                                          {coreqCourse.block.map(b =>
+                                            b.day.charAt(0).toUpperCase() + b.day.slice(1)
+                                          ).join(', ')}
+                                        </p>
+                                        <p>
+                                          <strong>Time:</strong>{' '}
+                                          {`${format_time(coreqCourse.block[0].startTime)} - ${format_time(coreqCourse.block[0].endTime)}`}
+                                        </p>
+
                                         <p><strong>Location:</strong> {coreqCourse.location}</p>
                                         <p><strong>Department:</strong> {coreqCourse.department}</p>
                                         <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
@@ -1132,8 +1266,17 @@ useEffect(() => {
                       <div className="details-section">
                         <h4>Course Details</h4>
                         <p>{course.description}</p>
-                        <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                        <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                        <p>
+                          <strong>Day:</strong>{' '}
+                          {course.block.map(b =>
+                            b.day.charAt(0).toUpperCase() + b.day.slice(1)
+                          ).join(', ')}
+                        </p>
+                        <p>
+                          <strong>Time:</strong>{' '}
+                          {`${format_time(course.block[0].startTime)} - ${format_time(course.block[0].endTime)}`}
+                        </p>
+
                         <p><strong>Location:</strong> {course.location}</p>
                         <p><strong>Department:</strong> {course.department}</p>
                         <p><strong>Prerequisites:</strong> {course.prerequisites.length > 0 ? 
@@ -1233,8 +1376,15 @@ useEffect(() => {
                                       <div className="details-section">
                                         <h4>Course Details</h4>
                                         <p>{coreqCourse.description}</p>
-                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
-                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                          {coreqCourse.block.map((b, index) => (
+                                            <div key={index}>
+                                              <p><strong>Day:</strong> {b.day.charAt(0).toUpperCase() + b.day.slice(1)}</p>
+                                              {index === 0 && (
+                                                <p><strong>Time:</strong> {format_time(b.startTime)} - {format_time(b.endTime)}</p>
+                                              )}
+                                            </div>
+                                          ))}
+
                                         <p><strong>Location:</strong> {coreqCourse.location}</p>
                                         <p><strong>Department:</strong> {coreqCourse.department}</p>
                                         <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
@@ -1343,8 +1493,15 @@ useEffect(() => {
                       <div className="details-section">
                         <h4>Course Details</h4>
                         <p>{course.description}</p>
-                        <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                        <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                        <p>
+                          <strong>Day:</strong>{' '}
+                          {course.block.map(b => b.day.charAt(0).toUpperCase() + b.day.slice(1)).join(', ')}
+                        </p>
+                        <p>
+                          <strong>Time:</strong>{' '}
+                          {`${format_time(course.block[0].startTime)} - ${format_time(course.block[0].endTime)}`}
+                        </p>
+
                         <p><strong>Location:</strong> {course.location}</p>
                         <p><strong>Department:</strong> {courseDetails.department}</p>
                         <p><strong>Section:</strong> {course.section}</p>
@@ -1488,8 +1645,15 @@ useEffect(() => {
                                       <div className="details-section">
                                         <h4>Course Details</h4>
                                         <p>{coreqCourse.description}</p>
-                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
-                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        {coreqCourse.block.map((b, index) => (
+                                          <div key={index}>
+                                            <p><strong>Day:</strong> {b.day.charAt(0).toUpperCase() + b.day.slice(1)}</p>
+                                            {index === 0 && (
+                                              <p><strong>Time:</strong> {format_time(b.startTime)} - {format_time(b.endTime)}</p>
+                                            )}
+                                          </div>
+                                        ))}
+
                                         <p><strong>Location:</strong> {coreqCourse.location}</p>
                                         <p><strong>Department:</strong> {coreqCourse.department}</p>
                                       </div>
@@ -1601,8 +1765,15 @@ useEffect(() => {
                   <div className="details-section">
                     <h4>Course Details</h4>
                     <p>{course.description}</p>
-                    <p><strong>Day:</strong> {course.block.day.charAt(0).toUpperCase() + course.block.day.slice(1)}</p>
-                    <p><strong>Time:</strong> {format_time(course.block.startTime)} - {format_time(course.block.endTime)}</p>
+                    <p>
+                      <strong>Day:</strong>{' '}
+                      {course.block.map(b => b.day.charAt(0).toUpperCase() + b.day.slice(1)).join(', ')}
+                    </p>
+                    <p>
+                      <strong>Time:</strong>{' '}
+                      {`${format_time(course.block[0].startTime)} - ${format_time(course.block[0].endTime)}`}
+                    </p>
+
                     <p><strong>Location:</strong> {course.location}</p>
                     <p><strong>Department:</strong> {courseDetails.department}</p>
                     <p><strong>Waitlist Position:</strong> {course.waitlistPosition}</p>
@@ -1710,8 +1881,15 @@ useEffect(() => {
                                       <div className="details-section">
                                         <h4>Course Details</h4>
                                         <p>{coreqCourse.description}</p>
-                                        <p><strong>Day:</strong> {coreqCourse.block.day.charAt(0).toUpperCase() + coreqCourse.block.day.slice(1)}</p>
-                                        <p><strong>Time:</strong> {format_time(coreqCourse.block.startTime)} - {format_time(coreqCourse.block.endTime)}</p>
+                                        {coreqCourse.block.map((b, index) => (
+                                          <div key={index}>
+                                            <p><strong>Day:</strong> {b.day.charAt(0).toUpperCase() + b.day.slice(1)}</p>
+                                            {index === 0 && (
+                                              <p><strong>Time:</strong> {format_time(b.startTime)} - {format_time(b.endTime)}</p>
+                                            )}
+                                          </div>
+                                        ))}
+
                                         <p><strong>Location:</strong> {coreqCourse.location}</p>
                                         <p><strong>Department:</strong> {coreqCourse.department}</p>
                                         <p><strong>Prerequisites:</strong> {coreqCourse.prerequisites.length > 0 ? 
